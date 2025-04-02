@@ -40,7 +40,7 @@ const WelcomeScreen = () => {
                         <Text style={styles.primaryButtonText}>Log In</Text>
                     </TouchableOpacity>
                     
-                    <TouchableOpacity style={styles.secondaryButton}>
+                    <TouchableOpacity style={styles.secondaryButton}  onPress={() => navigation.navigate('SignUp')}>
                         <Text style={styles.secondaryButtonText}>Sign Up</Text>
                     </TouchableOpacity>
                 </View>

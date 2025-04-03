@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Dimensions, 
+  KeyboardAvoidingView, 
+  Platform, 
+  Alert, 
+  ActivityIndicator,
+  ScrollView  // Added ScrollView import
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { Formik } from 'formik';
@@ -7,6 +19,8 @@ import * as yup from 'yup';
 import colors from '../constants/Colors';
 import { useFonts, Poppins_700Bold, Poppins_600SemiBold, Poppins_400Regular } from '@expo-google-fonts/poppins';
 import Lottie from 'lottie-react-native';
+import { register } from '../services/firebases/auth';
+import { useAuth } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -30,6 +44,8 @@ const SignupScreen = () => {
   const navigation = useNavigation();
   const [secureTextEntry, setSecureTextEntry] = useState(true);
   const [confirmSecureTextEntry, setConfirmSecureTextEntry] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setUser } = useAuth();
 
   let [fontsLoaded] = useFonts({
     Poppins_700Bold,
@@ -37,8 +53,40 @@ const SignupScreen = () => {
     Poppins_400Regular
   });
 
+  const handleSignup = async (values) => {
+    setIsSubmitting(true);
+    try {
+      const userCredential = await register(values.email, values.password);
+      // You might want to update the user profile with the name here
+      // await updateProfile(userCredential.user, { displayName: values.name });
+      setUser(userCredential.user);
+      Alert.alert('Success', 'Account created successfully!');
+      navigation.navigate('Main'); // Navigate to main app after signup
+    } catch (error) {
+      let errorMessage = "Signup failed. Please try again.";
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = "Email already in use";
+          break;
+        case 'auth/invalid-email':
+          errorMessage = "Invalid email format";
+          break;
+        case 'auth/weak-password':
+          errorMessage = "Password is too weak";
+          break;
+      }
+      Alert.alert('Signup Error', errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (!fontsLoaded) {
-    return null;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.dark.secondary} />
+      </View>
+    );
   }
 
   return (
@@ -70,25 +118,10 @@ const SignupScreen = () => {
           <Text style={styles.subtitle}>Join Wingman AI</Text>
         </View>
 
-        <View style={styles.socialContainer}>
-          <TouchableOpacity style={[styles.socialButton, styles.googleButton]}>
-            <Icon name="logo-google" size={20} color="#DB4437" />
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.socialButton, styles.facebookButton]}>
-            <Icon name="logo-facebook" size={20} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>OR</Text>
-          <View style={styles.dividerLine} />
-        </View>
-
         <Formik
           initialValues={{ name: '', email: '', password: '', confirmPassword: '' }}
           validationSchema={signupValidationSchema}
-          onSubmit={values => Alert.alert('Success', 'Account created successfully!')}
+          onSubmit={handleSignup}
         >
           {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
             <View style={styles.formContainer}>
@@ -212,10 +245,18 @@ const SignupScreen = () => {
               )}
 
               <TouchableOpacity 
-                style={styles.signupButton}
+                style={[
+                  styles.signupButton,
+                  isSubmitting && styles.buttonDisabled
+                ]}
                 onPress={handleSubmit}
+                disabled={isSubmitting}
               >
-                <Text style={styles.buttonText}>Sign Up</Text>
+                {isSubmitting ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text style={styles.buttonText}>Sign Up</Text>
+                )}
               </TouchableOpacity>
             </View>
           )}
@@ -236,6 +277,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.dark.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.dark.background
   },
   scrollContainer: {
     flexGrow: 1,
@@ -270,43 +317,9 @@ const styles = StyleSheet.create({
     color: colors.dark.textSecondary,
     textAlign: 'center',
   },
-  socialContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginVertical: 20,
-  },
-  socialButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 12,
-  },
-  googleButton: {
-    backgroundColor: '#FFFFFF',
-  },
-  facebookButton: {
-    backgroundColor: '#1877F2',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 16,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.dark.textSecondary,
-    opacity: 0.2,
-  },
-  dividerText: {
-    marginHorizontal: 8,
-    color: colors.dark.textSecondary,
-    fontFamily: 'Poppins_400Regular',
-  },
   formContainer: {
     paddingHorizontal: 24,
+    marginTop: 20,
   },
   input: {
     backgroundColor: 'rgba(110, 68, 255, 0.1)',
@@ -367,6 +380,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 16,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
   buttonText: {
     color: 'white',

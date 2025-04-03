@@ -26,18 +26,52 @@
  */
 
 import React from 'react';
-
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StatusBar } from 'expo-status-bar';
 
+// Providers
+import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+
+// Navigation
 import AuthStack from './navigation/AuthStack';
 // import AppStack from './navigation/AppStack';
+import LoadingScreen from './screens/LoadingScreen';
 
-function App(){
+const RootStack = createNativeStackNavigator();
+
+function App() {
   return (
-    <NavigationContainer>
-      <AuthStack />
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <StatusBar style="auto" />
+          <NavigationContainer>
+            <RootStack.Navigator
+              screenOptions={{
+                headerShown: false
+              }}
+            >
+              <RootStack.Screen 
+                name="Loading" 
+                component={LoadingScreen}
+                options={{ gestureEnabled: false }}
+              />
+              <RootStack.Screen 
+                name="Auth" 
+                component={AuthStack}
+              />
+              {/* <RootStack.Screen 
+                name="Main" 
+                component={AppStack}
+              /> */}
+            </RootStack.Navigator>
+          </NavigationContainer>
+        </AuthProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
 

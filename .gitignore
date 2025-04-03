@@ -1,0 +1,112 @@
+# General
+.DS_Store
+*.swp
+*.bak
+*.tmp
+*~
+*.log
+*.pid
+*.seed
+*.pid.lock
+config.js
+
+# IDE specific files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Dependency directories
+node_modules/
+bower_components/
+jspm_packages/
+vendor/
+.pnp
+.pnp.js
+
+# Build directories
+dist/
+build/
+out/
+.next/
+.nuxt/
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env*.local
+
+# Coverage directories
+coverage/
+.nyc_output/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Testing
+junit.xml
+test-results/
+
+# Package files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Editor directories and files
+.atomic_design
+.history
+*/__pycache__/
+*.code-workspace
+
+# Language specific (uncomment as needed)
+
+## Python
+*.py[cod]
+__pycache__/
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+pyvenv.cfg
+.venv
+
+## Java
+*.class
+*.war
+*.ear
+*.jar
+
+## Ruby
+*.gem
+.bundle
+.ruby-version
+
+## Go
+bin/
+/pkg/
+
+## Rust
+/target/
+
+## Node.js
+node_modules/
+npm-debug.log
+yarn-error.log

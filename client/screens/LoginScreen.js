@@ -1,5 +1,16 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Dimensions, 
+  KeyboardAvoidingView, 
+  Platform, 
+  Alert, 
+  ActivityIndicator 
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { Formik } from 'formik';
@@ -7,17 +18,26 @@ import * as yup from 'yup';
 import colors from '../constants/Colors';
 import { useFonts, Poppins_700Bold, Poppins_600SemiBold, Poppins_400Regular } from '@expo-google-fonts/poppins';
 import Lottie from 'lottie-react-native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../services/firebases/config';
+import { AuthContext } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
 const loginValidationSchema = yup.object().shape({
-  email: yup.string().email('Please enter valid email').required('Email Address is Required'),
-  password: yup.string().min(8, ({ min }) => `Password must be at least ${min} characters`).required('Password is required'),
+  email: yup.string()
+    .email('Please enter valid email')
+    .required('Email Address is Required'),
+  password: yup.string()
+    .min(8, ({ min }) => `Password must be at least ${min} characters`)
+    .required('Password is required'),
 });
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [secureTextEntry, setSecureTextEntry] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setUser } = useContext(AuthContext);
 
   let [fontsLoaded] = useFonts({
     Poppins_700Bold,
@@ -25,22 +45,65 @@ const LoginScreen = () => {
     Poppins_400Regular
   });
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  const handleLogin = async (values) => {
+    setIsSubmitting(true);
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+      setUser(userCredential.user);
+    } catch (error) {
+      let errorMessage = "Login failed. Please try again.";
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = "No account found with this email";
+          break;
+        case 'auth/wrong-password':
+          errorMessage = "Incorrect password";
+          break;
+        case 'auth/invalid-email':
+          errorMessage = "Invalid email format";
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = "Too many attempts. Try again later or reset your password";
+          break;
+      }
+      Alert.alert('Login Error', errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleGoogleLogin = () => {
-    Alert.alert('Google Login', 'Google login would be implemented here');
+    Alert.alert(
+      'Coming Soon', 
+      'Google login will be available in our next update!',
+      [{ text: 'OK', onPress: () => console.log('OK Pressed') }]
+    );
   };
 
   const handleFacebookLogin = () => {
-    Alert.alert('Facebook Login', 'Facebook login would be implemented here');
+    Alert.alert(
+      'Coming Soon', 
+      'Facebook login will be available in our next update!',
+      [{ text: 'OK', onPress: () => console.log('OK Pressed') }]
+    );
   };
+
+  if (!fontsLoaded) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.dark.secondary} />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={[styles.container, { backgroundColor: colors.dark.background }]}
+      style={styles.container}
     >
       <TouchableOpacity 
         style={styles.backButton}
@@ -55,18 +118,18 @@ const LoginScreen = () => {
           autoPlay 
           loop 
           speed={0.5}
-          style={styles.image} 
+          style={styles.animation} 
         />
 
         <View style={styles.textContainer}>
           <Text style={styles.title}>Welcome back to</Text>
-          <Text style={styles.appNameText}>Wingman AI</Text>
+          <Text style={styles.appName}>Wingman AI</Text>
         </View>
 
         <Formik
           validationSchema={loginValidationSchema}
           initialValues={{ email: '', password: '' }}
-          onSubmit={values => Alert.alert('Success', JSON.stringify(values))}
+          onSubmit={handleLogin}
         >
           {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
             <View style={styles.formContainer}>
@@ -89,7 +152,7 @@ const LoginScreen = () => {
               <View style={styles.inputContainer}>
                 <View style={styles.passwordInput}>
                   <TextInput
-                    style={[styles.passwordTextInput, { color: colors.dark.text }]}
+                    style={styles.passwordTextInput}
                     placeholder="Password"
                     placeholderTextColor={colors.dark.textSecondary}
                     onChangeText={handleChange('password')}
@@ -115,11 +178,18 @@ const LoginScreen = () => {
               </View>
 
               <TouchableOpacity 
-                style={[styles.loginButton, { backgroundColor: colors.dark.secondary }]}
+                style={[
+                  styles.loginButton,
+                  isSubmitting && styles.loginButtonDisabled
+                ]}
                 onPress={handleSubmit}
-                activeOpacity={0.8}
+                disabled={isSubmitting}
               >
-                <Text style={styles.loginButtonText}>Log In</Text>
+                {isSubmitting ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <Text style={styles.loginButtonText}>Log In</Text>
+                )}
               </TouchableOpacity>
 
               <View style={styles.dividerContainer}>
@@ -130,17 +200,17 @@ const LoginScreen = () => {
 
               <View style={styles.socialButtonsContainer}>
                 <TouchableOpacity 
-                  style={[styles.socialButton, styles.googleButton]}
+                  style={styles.socialButton}
                   onPress={handleGoogleLogin}
                 >
                   <Icon name="logo-google" size={24} color="#DB4437" />
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                  style={[styles.socialButton, styles.facebookButton]}
+                  style={styles.socialButton}
                   onPress={handleFacebookLogin}
                 >
-                  <Icon name="logo-facebook" size={24} color="#FFFFFF" />
+                  <Icon name="logo-facebook" size={24} color="#3b5998" />
                 </TouchableOpacity>
               </View>
 
@@ -162,12 +232,19 @@ const LoginScreen = () => {
         </Formik>
       </View>
     </KeyboardAvoidingView>
-  );           
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.dark.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.dark.background
   },
   backButton: {
     position: 'absolute',
@@ -178,13 +255,12 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
     marginTop: 50,
   },
-  image: {
+  animation: {
     height: height * 0.25,
     width: width * 0.7,
     marginBottom: 16,
@@ -199,7 +275,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     letterSpacing: 0.5,
   },
-  appNameText: {
+  appName: {
     color: colors.dark.secondary,
     fontSize: 36,
     fontFamily: 'Poppins_700Bold',
@@ -224,17 +300,17 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(110, 68, 255, 0.3)',
   },
   passwordInput: {
-    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: 'rgba(110, 68, 255, 0.1)',
     padding: 16,
     borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(110, 68, 255, 0.3)',
   },
   passwordTextInput: {
     flex: 1,
+    color: colors.dark.text,
     fontFamily: 'Poppins_400Regular',
     fontSize: 14,
   },
@@ -243,19 +319,18 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     width: '100%',
+    backgroundColor: colors.dark.secondary,
     padding: 16,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 8,
-    elevation: 3,
-    shadowColor: colors.dark.secondary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+  },
+  loginButtonDisabled: {
+    opacity: 0.7,
   },
   loginButtonText: {
-    color: '#FFFFFF',
+    color: 'white',
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 18,
     letterSpacing: 0.5,
@@ -264,7 +339,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 20,
-    width: '100%',
   },
   dividerLine: {
     flex: 1,
@@ -281,23 +355,21 @@ const styles = StyleSheet.create({
   socialButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    width: '100%',
     marginBottom: 20,
   },
   socialButton: {
     width: 60,
     height: 60,
     borderRadius: 30,
+    backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 12,
     elevation: 3,
-  },
-  googleButton: {
-    backgroundColor: '#FFFFFF',
-  },
-  facebookButton: {
-    backgroundColor: '#1877F2',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   forgotPasswordButton: {
     alignSelf: 'flex-end',
@@ -307,7 +379,6 @@ const styles = StyleSheet.create({
     color: colors.dark.secondary,
     fontFamily: 'Poppins_400Regular',
     fontSize: 14,
-    letterSpacing: 0.3,
   },
   signupContainer: {
     flexDirection: 'row',
@@ -318,13 +389,11 @@ const styles = StyleSheet.create({
     color: colors.dark.textSecondary,
     fontFamily: 'Poppins_400Regular',
     fontSize: 14,
-    letterSpacing: 0.3,
   },
   signupLink: {
     color: colors.dark.secondary,
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 14,
-    letterSpacing: 0.3,
   },
   errorText: {
     color: colors.dark.error,

@@ -8,7 +8,7 @@ export default function LoadingScreen({ navigation }) {
   useEffect(() => {
     if (!loading) {
       // Navigate to the appropriate screen based on auth state
-      navigation.replace(user ? 'Main' : 'Auth');
+      navigation.replace(user ? 'Auth' : 'Main');
     }
   }, [user, loading, navigation]);
 
@@ -25,4 +25,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-});
+}); 

@@ -37,7 +37,7 @@ import { AuthProvider } from './context/AuthContext';
 
 // Navigation
 import AuthStack from './navigation/AuthStack';
-// import AppStack from './navigation/AppStack';
+import MainStack from './navigation/MainStack';
 import LoadingScreen from './screens/LoadingScreen';
 
 const RootStack = createNativeStackNavigator();
@@ -63,10 +63,10 @@ function App() {
                 name="Auth" 
                 component={AuthStack}
               />
-              {/* <RootStack.Screen 
+              <RootStack.Screen 
                 name="Main" 
-                component={AppStack}
-              /> */}
+                component={MainStack}
+              />
             </RootStack.Navigator>
           </NavigationContainer>
         </AuthProvider>

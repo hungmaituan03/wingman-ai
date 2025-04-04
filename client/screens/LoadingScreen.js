@@ -1,20 +1,23 @@
 import React, { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useAuth } from '../context/AuthContext';
+import colors from '../constants/Colors'; // Make sure to import colors
 
 export default function LoadingScreen({ navigation }) {
   const { user, loading } = useAuth();
 
   useEffect(() => {
     if (!loading) {
-      // Navigate to the appropriate screen based on auth state
-      navigation.replace(user ? 'Auth' : 'Main');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: user ? 'Main' : 'Auth' }]
+      });
     }
-  }, [user, loading, navigation]);
+  }, [user, loading]);
 
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" />
+      <ActivityIndicator size="large" color={colors.dark.secondary} />
     </View>
   );
 }
@@ -24,5 +27,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: colors.dark.background,
   },
-}); 
+});

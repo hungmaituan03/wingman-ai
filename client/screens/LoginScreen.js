@@ -54,19 +54,13 @@ const LoginScreen = () => {
         values.password
       );
       setUser(userCredential.user);
+      navigation.navigate('Loading');
+      
       Alert.alert(
         'Login Successful',
         `Welcome back, ${userCredential.user.email}!`,
-        [{
-          text: 'Continue',
-          onPress: () => {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'HomeScreen' }],
-            });
-          }
-        }]
       );
+      
     } catch (error) {
       let errorMessage = "Login failed. Please try again.";
       switch (error.code) {

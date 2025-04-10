@@ -23,8 +23,8 @@ import {
   };
   
   // Logout
-  export const logout = () => {
-    return signOut(auth);
+  export const logout = async () => {
+    await auth.signOut();
   };
   
   // Auth state listener

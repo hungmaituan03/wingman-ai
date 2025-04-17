@@ -64,12 +64,19 @@ const HomeScreen = ({ navigation }) => {
 
           <TouchableOpacity 
             style={styles.navButton}
-            onPress={() => navigation.navigate('ChatScreen')}
+            onPress={() => navigation.navigate('Chat', {
+              screen: 'ChatMain',
+              params: {
+                screen: 'ChatScreen',
+                params: { newChat: true }, // ← explicitly pass newChat flag
+              },
+            })}
           >
             <View style={styles.bubble}>
               <Icon name="chatbubble-ellipses" size={26} color={colors.dark.textSecondary} />
             </View>
           </TouchableOpacity>
+
 
           <TouchableOpacity 
             style={styles.navButton}

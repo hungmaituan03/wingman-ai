@@ -6,6 +6,7 @@ pydantic==2.6.1
 
 # Database
 firebase-admin==6.2.0
+uuid==1.30
 
 # AI/ML
 openai==1.12.0

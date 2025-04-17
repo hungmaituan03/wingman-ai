@@ -1,12 +1,15 @@
-from openai import OpenAI
 import os
+import uuid  # Import uuid to generate unique IDs
 from dotenv import load_dotenv
 import requests
+from openai import OpenAI
 
+# Load environment variables
 load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 google_maps_api_key = os.getenv("GOOGLE_MAPS_API_KEY")
+
 
 def get_places_from_google(query: str) -> list:
     try:
@@ -22,19 +25,42 @@ def get_places_from_google(query: str) -> list:
         places = data.get('results', [])
 
         place_details = []
-        for place in places[:5]:  # Top 5 only
+        for place in places[:5]:  # Limit to top 5
             location = place.get("geometry", {}).get("location")
             if not location or 'lat' not in location or 'lng' not in location:
                 continue  # Skip if no coordinates
+
+            place_id = place.get("place_id")
+
+            # Fetch additional photo references via Place Details API
+            photo_urls = []
+            if place_id:
+                details_url = (
+                    f"https://maps.googleapis.com/maps/api/place/details/json"
+                    f"?place_id={place_id}&fields=photos&key={google_maps_api_key}"
+                )
+                details_response = requests.get(details_url)
+                details_data = details_response.json()
+                photos = details_data.get("result", {}).get("photos", [])[:3]
+
+                for photo in photos:
+                    ref = photo.get('photo_reference')
+                    if ref:
+                        photo_url = (
+                            f"https://maps.googleapis.com/maps/api/place/photo"
+                            f"?maxwidth=800&photo_reference={ref}&key={google_maps_api_key}"
+                        )
+                        photo_urls.append(photo_url)
 
             place_details.append({
                 "name": place.get("name", "N/A"),
                 "address": place.get("formatted_address", "N/A"),
                 "rating": place.get("rating", "N/A"),
                 "geometry": {"location": location},
+                "photoUrls": photo_urls  # Up to 3 real photos
             })
 
-        print("Filtered Places with Geometry:", place_details)
+        print("Filtered Places with Geometry and Photos:", place_details)
         return place_details
 
     except Exception as e:
@@ -43,6 +69,10 @@ def get_places_from_google(query: str) -> list:
 
 def handle_chat(message: str, conversation_id: str = None) -> dict:
     try:
+        # Generate a new unique conversation ID if none is provided
+        if not conversation_id or conversation_id.strip() == "":
+            conversation_id = str(uuid.uuid4())
+
         print(f"Processing message: {message}")
         places = get_places_from_google(message)
         if not places:
@@ -67,7 +97,7 @@ def handle_chat(message: str, conversation_id: str = None) -> dict:
                     "content": (
                         f"Here are some places I found based on the query: '{message}'\n\n"
                         f"{place_info}\n\n"
-                        f"Can you recommend up to 5 different places and describe them briefly for a traveler?"
+                        f"Can you recommend at least 3 different places and describe them briefly with name, address, rating, a brief description, and pictures for a traveler?"
                     )
                 }
             ]
@@ -77,14 +107,15 @@ def handle_chat(message: str, conversation_id: str = None) -> dict:
 
         return {
             "response": bot_response,
-            "conversation_id": conversation_id or "new_convo",
+            "conversation_id": conversation_id,  # Now always a unique value
             "places": [
                 {
                     "name": p["name"],
                     "address": p["address"],
                     "rating": p["rating"],
                     "lat": p["geometry"]["location"]["lat"],
-                    "lng": p["geometry"]["location"]["lng"]
+                    "lng": p["geometry"]["location"]["lng"],
+                    "photoUrls": p.get("photoUrls", [])  # Send list of image URLs
                 }
                 for p in places
             ]

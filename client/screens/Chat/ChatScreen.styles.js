@@ -31,7 +31,8 @@ export default StyleSheet.create({
     backgroundColor: '#FFFFFF' 
   },
   messagesWrapper: { 
-    flex: 1 
+    flex: 1,
+    zIndex: 1,
   },
   messagesContainer: {
     paddingHorizontal: 16,
@@ -60,12 +61,14 @@ export default StyleSheet.create({
     backgroundColor: '#6E44FF',
     justifyContent: 'center', 
     alignItems: 'center',
-    marginLeft: 8,
+    marginRight: 10,
+    padding: 5,
   },
   avatarImage: { 
     width: 32, 
     height: 32, 
-    borderRadius: 16 
+    borderRadius: 16,
+    marginLeft: 10,
   },
   messageContainer: { 
     maxWidth: '80%' 
@@ -78,14 +81,14 @@ export default StyleSheet.create({
   },
   botBubble: {
     backgroundColor: '#F0ECFF',
-    borderRadius: 16,
+    borderRadius: 15,
     padding: 12,
     borderWidth: 1.5,
     borderColor: '#C8B5FF',
   },
   userBubble: {
     backgroundColor: '#E6E2FF',
-    borderRadius: 16,
+    borderRadius: 15,
     padding: 12,
     borderWidth: 1.5,
     borderColor: '#C8B5FF',
@@ -101,6 +104,7 @@ export default StyleSheet.create({
     color: '#666',
     fontFamily: 'Poppins_400Regular',
     marginTop: 4,
+    padding: 5,
   },
   mapButton: { 
     marginTop: 8 
@@ -111,11 +115,14 @@ export default StyleSheet.create({
     fontSize: 16,
   },
   inputContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    width: '100%',
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 16,
-    borderTopWidth: 0,
+    padding: 10,
+    zIndex: 5, // ✅ important
   },
   inputCard: {
     borderRadius: 20,
@@ -189,31 +196,72 @@ export default StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
-    backgroundColor: colors.dark.background,
+    backgroundColor: '#F4F4FA',
     borderColor: '#DAD0FF',
     borderWidth: 1.5,
     overflow: 'hidden',
   },
   placeName: {
-    fontSize: 16,
-    fontFamily: 'Poppins_400Regular',
+    fontSize: 17,
+    fontFamily: 'Poppins_600SemiBold',
     color: '#2D2D2D',
     marginBottom: 4,
   },
   placeAddress: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Poppins_400Regular',
-    color: '#5E5E5E',
     marginBottom: 4,
   },
   placeRating: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Poppins_400Regular',
     marginBottom: 4,
   },
-  placeDescription: {
+  placeSummary: {
+    fontSize: 15,
+    fontFamily: 'Poppins_400Regular',
+    paddingBottom: 10,
+  },
+  placeExplanation: {
+    fontSize: 14,
+    fontFamily: 'Poppins_400Regular',
+  },
+  placeOpeningHours: {
+    fontSize: 14,
+    fontFamily: 'Poppins_400Regular',
+  },
+  placePrice: {
+    fontSize: 14,
+    fontFamily: 'Poppins_400Regular',
+  },
+  suggestionsContainer: {
+    maxHeight: 150,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#D3C1FF',
+    borderWidth: 1.5,
+    borderRadius: 12,
+    marginTop: 2, 
+    marginBottom: 8,
+    overflow: 'hidden',
+    paddingHorizontal: 12, // <-- ✅ NEW: match the TextInput padding
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  suggestionItem: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  suggestionText: {
     fontSize: 16,
     fontFamily: 'Poppins_400Regular',
-    color: '#666',
+    color: '#333',
+  },  
+  placeInputWrapper: {
+    flex: 1,
+    position: 'relative',
   },
 });

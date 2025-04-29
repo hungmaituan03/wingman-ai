@@ -1,18 +1,17 @@
-import React from 'react';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import React from "react";
+import { createStackNavigator } from "@react-navigation/stack";
+import HomeScreen from "../screens/HomeScreen";
+import ChatStack from "./ChatStack";
+import TripStack from "./TripStack";
 
-import HomeScreen from '../screens/HomeScreen';
-import ChatStack from './ChatStack'; // ✅ Import from your new file!
+const Stack = createStackNavigator();
 
-const Drawer = createDrawerNavigator();
-
-const MainStack = () => {
+export default function AppStack() {
   return (
-    <Drawer.Navigator screenOptions={{ headerShown: false }}>
-      <Drawer.Screen name="Home" component={HomeScreen} />
-      <Drawer.Screen name="Chat" component={ChatStack} />
-    </Drawer.Navigator>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Chat" component={ChatStack} />
+      <Stack.Screen name="Trip"component={TripStack} />
+    </Stack.Navigator>
   );
-};
-
-export default MainStack;
+}

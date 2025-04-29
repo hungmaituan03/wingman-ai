@@ -30,8 +30,9 @@ export default StyleSheet.create({
     },
     drawerTitle: {
         fontSize: 20,
-        fontFamily: 'Poppins_600SemiBold',
-        color: theme.text,
+        fontFamily: 'Poppins_700Bold',
+        color: Colors.dark.primary,
+        padding: 10,
     },
     searchRow: {
         flexDirection: 'row',

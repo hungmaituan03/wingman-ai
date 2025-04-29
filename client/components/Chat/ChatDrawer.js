@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 
 import styles from './styles/ChatDrawer.styles';
@@ -17,12 +18,13 @@ const ChatDrawer = ({
   sessionList, 
   onSelect, 
   onNewChat, 
-  sessionActions // ✅ { deleteSession, renameSession }
+  sessionActions
 }) => {
   const [searchText, setSearchText] = useState('');
+  const navigation = useNavigation();
+  const { deleteSession, renameSession } = sessionActions;
 
-  const { deleteSession, renameSession } = sessionActions; // ✅ use passed-down actions
-
+  // Filter sessions based on search text
   const filteredSessions = sessionList.filter(session =>
     (session?.name ?? '').toLowerCase().includes(searchText.toLowerCase())
   );
@@ -41,7 +43,7 @@ const ChatDrawer = ({
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            await deleteSession(id);
+            await deleteSession(id, navigation); // ✅ Pass navigation
           }
         }
       ]

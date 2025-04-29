@@ -78,14 +78,22 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
 
 
-          <TouchableOpacity 
-            style={styles.navButton}
-            onPress={() => navigation.navigate('Event')}
+          <TouchableOpacity style={styles.navButton}
+            onPress={() =>
+              navigation.navigate("Trip", {
+                screen: "TripPlanner",
+              })
+            }
           >
             <View style={styles.bubble}>
-              <Icon name="today" size={26} color={colors.dark.textSecondary} />
+              <Icon
+                name="trail-sign"
+                size={26}
+                color={colors.dark.textSecondary}
+              />
             </View>
           </TouchableOpacity>
+
         
           <TouchableOpacity 
             style={styles.navButton}

@@ -1,155 +1,198 @@
+// src/screens/MapScreen.styles.js
+
 import { StyleSheet, Dimensions, Platform } from 'react-native';
-import colors from '../../constants/Colors';
+import Colors from '../../constants/Colors';
 
 const { width, height } = Dimensions.get('window');
+const COLLAPSED_HEIGHT = height * 0.28;
+const EXPANDED_HEIGHT  = height * 0.62;
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
+const SPACING = { xs: 4, s: 8, m: 16, l: 24 };
+const RADIUS  = { sm: 8, md: 16 };
+
+const SHADOW = {
+  card: {
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
   },
-  safeArea: {
-    flex: 1,
-  },
-  messagesWrapper: {
-    flex: 1,
-    marginBottom: Platform.select({
-      ios: 120,
-      android: 100,
-    }),
-  },
-  inputContainer: {
-    position: 'absolute',
-    left: 16,
-    right: 16,
-    bottom: Platform.select({
-      ios: 16,
-      android: 8,
-    }),
-  },
-  safeArea: {
-    flex: 1,
-  },
-  map: {
-    flex: 1,
-    width: width,
-  },
-  backButtonContainer: {
-    backgroundColor: 'white',
-    borderRadius: 24,
-    padding: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  
-  floatingBackTouchable: {
-    borderRadius: 24,
-  },
-  
-  customMarker: {
-    paddingVertical: 4,
-    paddingHorizontal: 6,
-    borderRadius: 12,
-    borderColor: '#fff',
-    borderWidth: 1,
-    elevation: 5,
+  box: {
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  markerBase: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    flexDirection: 'row',
+};
+
+const TYPE = { body: 15, header: 18, title: 22 };
+const ITEM_WIDTH = (width - (SPACING.l * 2 + SPACING.s * 2)) / 3;
+
+const cardBase = {
+  position: 'absolute',
+  left: 0, right: 0, bottom: 0,
+  backgroundColor: Colors.dark.background,
+  borderTopLeftRadius: RADIUS.md,
+  borderTopRightRadius: RADIUS.md,
+  paddingHorizontal: SPACING.l,
+  paddingBottom: SPACING.m,
+  ...SHADOW.card,
+};
+
+export default StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
   },
-  activeMarker: {
-    backgroundColor: colors.dark.secondary,
+  map: {
+    ...StyleSheet.absoluteFillObject,
   },
-  inactiveMarker: {
-    backgroundColor: 'black',
-  },
-  markerText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  infoCard: {
+
+  backButtonContainer: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: height * 0.3, // 30% of screen height
-    backgroundColor: "#DAD0FF",
-    paddingVertical: height * 0.025, // ~1.5% of screen height
-    paddingHorizontal: width * 0.05, // 5% of screen width
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 10,
+    top: SPACING.l,
+    left: SPACING.m,
+    zIndex: 10,
+  },
+  floatingBackTouchable: {
+    borderRadius: RADIUS.md,
+    elevation: 2,
+    padding: SPACING.s,
+  },
+
+  markerBase: {
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: RADIUS.md,
+    flexDirection: 'row',
+    padding: SPACING.s,
+    ...SHADOW.box,
+  },
+  activeMarker:   { backgroundColor: '#6E44FF' },
+  inactiveMarker: { backgroundColor: '#888888' },
+  markerText:     { color: '#fff', fontSize: 12, fontWeight: '700' },
+
+  collapsedCard: {
+    ...cardBase,
+    maxHeight: COLLAPSED_HEIGHT,
+  },
+  expandedCard: {
+    ...cardBase,
+    maxHeight: EXPANDED_HEIGHT,
+  },
+
+  // ─── Header Row ───────────────────────────────
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: SPACING.s,
   },
   placeTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 4,
+    flex: 1,
+    fontSize: TYPE.title,
+    fontWeight: '800',
+    color: '#1A1A1A',
   },
-  placeAddress: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  placeRating: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 6,
+  iconButton: {
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    borderRadius: RADIUS.sm,
+    padding: SPACING.s,
   },
-  imageScrollContainer: {
-    marginTop: height * 0.01,
-    width: '100%',
-    height: height * 0.2, // responsive height
+  iconButtonSpacing: {
+    marginLeft: SPACING.s,
+  },
+
+  // ─── Body ─────────────────────────────────────
+  cardBody: {
+    // nothing special; content flows here
+  },
+
+  sectionHeader: {
+    fontSize: TYPE.header,
+    fontWeight: '700',
+    color: '#2E2E2E',
+    marginTop: SPACING.s,
+    marginBottom: SPACING.xs,
+  },
+  sectionText: {
+    fontSize: TYPE.body,
+    color: '#3A3A3A',
+    marginBottom: SPACING.s,
+  },
+
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: SPACING.s,
+  },
+  infoBox: {
+    width: ITEM_WIDTH,
+    backgroundColor: '#F3EAD8',
+    borderColor: '#DAD0FF',
+    borderWidth: 1.5,
+    borderRadius: RADIUS.sm,
+    padding: SPACING.s,
+    ...SHADOW.box,
+  },
+  boxHeader: {
+    fontWeight: '600',
+    marginBottom: SPACING.xs,
+  },
+  boxContent: {
+    alignItems: 'center',
+  },
+
+  tagRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: SPACING.m,
+  },
+  tagBox: {
+    backgroundColor: '#FFE66D',
+    borderRadius: RADIUS.sm,
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.s,
+    marginRight: SPACING.s,
+    marginBottom: SPACING.s,
+  },
+  tagBoxText: {
+    fontSize: TYPE.body,
+    fontWeight: '600',
+    color: '#1A1A1A',
   },
 
   imageRow: {
     flexDirection: 'row',
-    marginTop: height * 0.008,
+    marginTop: SPACING.m,
+  },
+  placeImage: {
+    width: ITEM_WIDTH,
+    height: height * 0.12,
+    borderRadius: RADIUS.sm,
+    marginRight: SPACING.s,
   },
 
-  placeImage: {
-    width: (width - width * 0.1) / 3, // match 8% padding on both sides
-    height: height * 0.12,
-    borderRadius: 8,
-    resizeMode: 'cover',
-  },
-  
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.9)',
+    backgroundColor: 'rgba(0,0,0,0.8)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  modalClose: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 60 : 40,
+    right: SPACING.m,
+    zIndex: 10,
   },
   fullScreenImage: {
     width: '90%',
     height: '80%',
   },
-  modalClose: {
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    zIndex: 10,
-  },
-  
 });
-
-export default styles;

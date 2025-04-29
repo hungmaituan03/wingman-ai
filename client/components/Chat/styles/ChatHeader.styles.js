@@ -12,8 +12,6 @@ export default StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     backgroundColor: 'white',
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
   },
   backButton: {
     padding: 8,
@@ -25,10 +23,17 @@ export default StyleSheet.create({
     right: 0,
     textAlign: 'center',
     fontSize: 18,
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'Poppins_700Bold',
     color: Colors.dark.secondary,
     zIndex: 1,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 }, // slightly downward
+    textShadowRadius: 2,
+    textTransform: 'uppercase',
+    fontWeight: 700,
+    letterSpacing: 0.5,
   },
+  
   rightControls: {
     flexDirection: 'row',
     alignItems: 'center',

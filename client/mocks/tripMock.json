@@ -1,0 +1,259 @@
+{
+  "summary": "A day trip in Shibuya with minimal Japanese knowledge can still be thoroughly enjoyable and easy to navigate. Start your day at the iconic Shibuya Crossing, followed by a visit to the Hachiko Statue. Explore the trendy shops and cafes in the area, and enjoy a meal at a conveyor belt sushi restaurant, which requires minimal interaction. Spend the afternoon at Yoyogi Park and visit the nearby Meiji Shrine. End your day with a panoramic view of the city from the Shibuya Sky observation deck.",
+  "tips": [
+    "Use translation apps or carry a phrasebook to help with basic interactions.",
+    "Look for restaurants with picture menus or English menus, which are common in tourist areas.",
+    "Stay close to major landmarks and use the English signage available in most public transport and popular tourist spots."
+  ],
+  "budget": {
+    "total_per_person": 300.0,
+    "currency": "USD",
+    "breakdown": {
+      "accommodation": 100.0,
+      "transport": 50.0,
+      "food": 75.0,
+      "activities": 75.0
+    }
+  },
+  "general_places": [
+    {
+      "id": "82565001-45ff-4e76-a964-b14dad601076",
+      "name": "Shibuya Excel Hotel Tokyu",
+      "address": "1-chōme-12-2 Dōgenzaka, Shibuya, Tokyo 150-0043, Japan",
+      "lat": 35.6585773,
+      "lng": 139.6998213,
+      "photoUrls": [
+        "https://example.com/photo1.jpg",
+        "https://example.com/photo2.jpg",
+        "https://example.com/photo3.jpg"
+      ],
+      "rating": 4.2,
+      "user_ratings_total": 3450,
+      "price_level": "2",
+      "types": [
+        "cafe",
+        "lodging",
+        "restaurant",
+        "point_of_interest",
+        "food",
+        "establishment",
+        "hotel"
+      ],
+      "phone_number": "03-5457-0109",
+      "website": "https://www.tokyuhotels.co.jp/shibuya-e/index.html",
+      "opening_hours": [
+        "Monday: Open 24 hours",
+        "Tuesday: Open 24 hours",
+        "Wednesday: Open 24 hours",
+        "Thursday: Open 24 hours",
+        "Friday: Open 24 hours",
+        "Saturday: Open 24 hours",
+        "Sunday: Open 24 hours"
+      ],
+      "google_maps_url": "https://maps.google.com/?cid=18345569282918056042"
+    },
+    {
+      "id": "e8a3f55a-28d9-44c1-8987-861e8e343c12",
+      "name": "Uobei Shibuya Dogenzaka Store",
+      "address": "2-chōme-29-11 Central Bldg. 6, Dōgenzaka, Shibuya, Tokyo 150-0043, Japan",
+      "lat": 35.6594349,
+      "lng": 139.6979207,
+      "photoUrls": [
+        "https://example.com/photo4.jpg",
+        "https://example.com/photo5.jpg",
+        "https://example.com/photo6.jpg"
+      ],
+      "rating": 4.3,
+      "user_ratings_total": 7666,
+      "price_level": "1",
+      "types": [
+        "meal_takeaway",
+        "restaurant",
+        "food",
+        "point_of_interest",
+        "establishment"
+      ],
+      "phone_number": "03-3462-0241",
+      "website": "https://www.genkisushi.co.jp/",
+      "opening_hours": [
+        "Monday: 11:00 AM – 11:00 PM",
+        "Tuesday: 11:00 AM – 11:00 PM",
+        "Wednesday: 11:00 AM – 11:00 PM",
+        "Thursday: 11:00 AM – 11:00 PM",
+        "Friday: 11:00 AM – 11:00 PM",
+        "Saturday: 10:30 AM – 11:00 PM",
+        "Sunday: 10:30 AM – 11:00 PM"
+      ],
+      "google_maps_url": "https://maps.google.com/?cid=5886746596086835007"
+    },
+    {
+      "id": "4a3018da-f493-4df7-b889-5575a30e67ec",
+      "name": "Shibuya Scramble Crossing",
+      "address": "21 Udagawacho, Shibuya, Tokyo 150-0042, Japan",
+      "lat": 35.659482,
+      "lng": 139.7005596,
+      "photoUrls": [
+        "https://example.com/photo7.jpg",
+        "https://example.com/photo8.jpg",
+        "https://example.com/photo9.jpg"
+      ],
+      "rating": 4.5,
+      "user_ratings_total": 12246,
+      "price_level": "N/A",
+      "types": [
+        "tourist_attraction",
+        "point_of_interest",
+        "establishment",
+        "quick_stop"
+      ],
+      "phone_number": "N/A",
+      "website": "N/A",
+      "opening_hours": [],
+      "google_maps_url": "https://maps.google.com/?cid=2370410330085837161"
+    }
+  ],
+  "itinerary": {
+    "morning": [
+      {
+        "id": "2e7e8bc8-34bb-4204-bd46-22c8f1755654",
+        "name": "Meiji Jingu",
+        "address": "1-1 Yoyogikamizonochō, Shibuya, Tokyo 151-8557, Japan",
+        "lat": 35.6763976,
+        "lng": 139.6993259,
+        "photoUrls": [
+          "https://example.com/photo10.jpg",
+          "https://example.com/photo11.jpg",
+          "https://example.com/photo12.jpg"
+        ],
+        "rating": 4.6,
+        "user_ratings_total": 42127,
+        "price_level": "N/A",
+        "types": [
+          "tourist_attraction",
+          "place_of_worship",
+          "point_of_interest",
+          "establishment"
+        ],
+        "phone_number": "03-3379-5511",
+        "website": "https://www.meijijingu.or.jp/",
+        "opening_hours": [],
+        "google_maps_url": "https://maps.google.com/?cid=10361244767556222835"
+      },
+      {
+        "id": "d811425b-8868-4d3a-9c5c-1e548bee4706",
+        "name": "Yoyogi Park",
+        "address": "2-1 Yoyogikamizonochō, Shibuya, Tokyo 151-0052, Japan",
+        "lat": 35.6700649,
+        "lng": 139.6949656,
+        "photoUrls": [
+          "https://example.com/photo13.jpg",
+          "https://example.com/photo14.jpg",
+          "https://example.com/photo15.jpg"
+        ],
+        "rating": 4.3,
+        "user_ratings_total": 24807,
+        "price_level": "N/A",
+        "types": [
+          "park",
+          "tourist_attraction",
+          "point_of_interest",
+          "establishment"
+        ],
+        "phone_number": "03-3469-6081",
+        "website": "https://www.tokyo-park.or.jp/park/yoyogi/",
+        "opening_hours": [
+          "Monday: Open 24 hours",
+          "Tuesday: Open 24 hours",
+          "Wednesday: Open 24 hours",
+          "Thursday: Open 24 hours",
+          "Friday: Open 24 hours",
+          "Saturday: Open 24 hours",
+          "Sunday: Open 24 hours"
+        ],
+        "google_maps_url": "https://maps.google.com/?cid=3800131593595043646"
+      }
+    ],
+    "afternoon": [
+      {
+        "id": "ef8bd0dd-b858-4e32-8829-497d967474d4",
+        "name": "Shibuya Sky",
+        "address": "2-24-12 Shibuya, Shibuya-ku, Tokyo 150-0002, Japan",
+        "lat": 35.658034,
+        "lng": 139.701636,
+        "photoUrls": [
+          "https://example.com/photo16.jpg",
+          "https://example.com/photo17.jpg"
+        ],
+        "rating": 4.5,
+        "user_ratings_total": 11234,
+        "price_level": "3",
+        "types": [
+          "observation_deck",
+          "tourist_attraction",
+          "point_of_interest",
+          "establishment"
+        ],
+        "phone_number": "03-3464-9996",
+        "website": "https://www.shibuya-scramble-square.com/sky/",
+        "opening_hours": [
+          "Monday: 10:00 AM – 10:00 PM",
+          "Tuesday: 10:00 AM – 10:00 PM",
+          "Wednesday: 10:00 AM – 10:00 PM",
+          "Thursday: 10:00 AM – 10:00 PM",
+          "Friday: 10:00 AM – 10:00 PM",
+          "Saturday: 10:00 AM – 10:00 PM",
+          "Sunday: 10:00 AM – 10:00 PM"
+        ],
+        "google_maps_url": "https://maps.google.com/?cid=12345678901234567890"
+      },
+      {
+        "id": "ea51ac8a-9016-488a-9366-4390e00c5056",
+        "name": "Harajuku",
+        "address": "Harajuku, Jingumae, Shibuya, Tokyo 150-0001, Japan",
+        "lat": 35.6699682,
+        "lng": 139.709008,
+        "photoUrls": [
+          "https://example.com/photo18.jpg",
+          "https://example.com/photo19.jpg"
+        ],
+        "rating": 0.0,
+        "user_ratings_total": 0,
+        "price_level": "N/A",
+        "types": ["colloquial_area", "political"],
+        "phone_number": "N/A",
+        "website": "N/A",
+        "opening_hours": [],
+        "google_maps_url": "https://maps.google.com/?q=Harajuku,+Tokyo"
+      }
+    ],
+    "evening": [
+      {
+        "id": "669774c9-93bf-47ea-9497-38b3b13709bb",
+        "name": "Nezu Museum",
+        "address": "6-chōme-5-1 Minamiaoyama, Minato City, Tokyo 107-0062, Japan",
+        "lat": 35.6622568,
+        "lng": 139.7170937,
+        "photoUrls": [
+          "https://example.com/photo20.jpg",
+          "https://example.com/photo21.jpg"
+        ],
+        "rating": 4.5,
+        "user_ratings_total": 5449,
+        "price_level": "N/A",
+        "types": ["museum", "point_of_interest", "establishment"],
+        "phone_number": "03-3400-2536",
+        "website": "https://www.nezu-muse.or.jp/",
+        "opening_hours": [
+          "Monday: Closed",
+          "Tuesday: 10:00 AM – 5:00 PM",
+          "Wednesday: 10:00 AM – 5:00 PM",
+          "Thursday: 10:00 AM – 5:00 PM",
+          "Friday: 10:00 AM – 5:00 PM",
+          "Saturday: 10:00 AM – 5:00 PM",
+          "Sunday: 10:00 AM – 5:00 PM"
+        ],
+        "google_maps_url": "https://maps.google.com/?cid=15044873861634050844"
+      }
+    ]
+  }
+}

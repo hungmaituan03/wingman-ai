@@ -1,3 +1,5 @@
+// src/screens/Trip/TripCard.js
+
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -9,9 +11,10 @@ import {
   Platform,
   UIManager,
 } from "react-native";
-import { parsePriceLevel, getOpeningStatus } from "../../../utils/stringParsers";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import styles from "./TripCard.styles";
+import { parsePriceLevel, getOpeningStatus } from "../../../utils/stringParsers";
+import { useTheme } from "../../../context/ThemeContext";
+import createTripCardStyles from "./TripCard.styles";
 
 // Enable LayoutAnimation on Android
 if (
@@ -21,14 +24,21 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const TripCard = ({ place }) => {
+export default function TripCard(props) {
+  // Guard against missing props
+  const { place } = props;
+  if (!place) return null;
+
+  const { colors } = useTheme();
+  const styles      = createTripCardStyles(colors);
   const [expanded, setExpanded] = useState(false);
+
   const {
     name,
     address,
     rating,
     user_ratings_total,
-    types,
+    types = [],
     price_level,
     phone_number,
     website,
@@ -38,23 +48,23 @@ const TripCard = ({ place }) => {
     photo_url,
   } = place;
 
-  // pick whichever photo array/URL
+  // Normalize photos
   const images = Array.isArray(photoUrls)
     ? photoUrls
     : photo_url
     ? [photo_url]
     : [];
 
+  // Prefetch if you like
   useEffect(() => {
-    images.forEach((uri) => Image.prefetch(uri));
+    images.forEach(uri => Image.prefetch(uri));
   }, [images]);
 
   const toggleExpand = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setExpanded((e) => !e);
+    setExpanded(e => !e);
   };
 
-  // build info-bar (excluding map)
   const infoBoxes = [
     price_level != null && {
       key: "price",
@@ -65,7 +75,7 @@ const TripCard = ({ place }) => {
     phone_number && {
       key: "phone",
       icon: "call-outline",
-      value: 'Phone',
+      value: "Phone",
       onPress: () => Linking.openURL(`tel:${phone_number}`),
     },
     website && {
@@ -84,10 +94,7 @@ const TripCard = ({ place }) => {
   ].filter(Boolean);
 
   return (
-    <TouchableOpacity
-      onPress={toggleExpand}
-      activeOpacity={0.9}
-    >
+    <TouchableOpacity onPress={toggleExpand} activeOpacity={0.9}>
       <View style={styles.card}>
         {/* ─── Title Row ─────────────────────────────────────────── */}
         <View style={styles.headerRow}>
@@ -96,28 +103,33 @@ const TripCard = ({ place }) => {
           </Text>
         </View>
 
-        {/* ─── Map Icon (fixed at top-right) ─────────────────────── */}
+        {/* ─── Map Icon ─────────────────────────────────────────── */}
         {google_maps_url && (
           <TouchableOpacity
-            onPress={() => Linking.openURL(google_maps_url)}
             style={styles.headerIcons}
+            onPress={() => Linking.openURL(google_maps_url)}
           >
-            <Ionicons name="map-outline" size={18} />
+            <Ionicons
+              name="map-outline"
+              size={18}
+              color={colors.primary}  // high contrast
+            />
           </TouchableOpacity>
         )}
 
-        {/* ─── Body ──────────────────────────────────────────────── */}
+        {/* ─── Address & Rating ───────────────────────────────────── */}
         <Text style={styles.addressText}>{address}</Text>
         <Text style={styles.ratingText}>
           ⭐ {rating} ({user_ratings_total ?? 0})
         </Text>
 
+        {/* ─── Expanded Content ──────────────────────────────────── */}
         {expanded && (
           <>
             {/* Tags */}
-            {types?.length > 0 && (
+            {types.length > 0 && (
               <View style={styles.tagRow}>
-                {Array.from(new Set(types)).map((t) => (
+                {[...new Set(types)].map(t => (
                   <View key={t} style={styles.tagBox}>
                     <Text style={styles.tagBoxText}>
                       #{t.replace(/[_-]/g, " ")}
@@ -129,7 +141,7 @@ const TripCard = ({ place }) => {
 
             {/* Info Bar */}
             <View style={styles.infoRow}>
-              {infoBoxes.map((b) => (
+              {infoBoxes.map(b => (
                 <TouchableOpacity
                   key={b.key}
                   style={styles.infoBox}
@@ -164,6 +176,4 @@ const TripCard = ({ place }) => {
       </View>
     </TouchableOpacity>
   );
-};
-
-export default TripCard;
+}

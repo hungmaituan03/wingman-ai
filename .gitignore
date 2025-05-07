@@ -8,7 +8,6 @@
 *.pid
 *.seed
 *.pid.lock
-config.js
 
 # IDE specific files
 .idea/

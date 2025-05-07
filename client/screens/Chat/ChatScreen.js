@@ -1,6 +1,6 @@
 // src/screens/Chat/ChatScreen.js
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -28,136 +28,166 @@ import {
   Poppins_400Regular,
 } from '@expo-google-fonts/poppins';
 import Icon from 'react-native-vector-icons/Ionicons';
+
 import ChatHeader from '../../components/Chat/ChatHeader';
-import styles from './ChatScreen.styles';
+import createStyles from './ChatScreen.styles';
 import { useChatStorage } from '../../hooks/useChatStorage';
 import { summarizeOpeningHours, parsePriceLevel } from '../../utils/stringParsers';
-import colors from '../../constants/Colors';
+import { useTheme } from '../../context/ThemeContext';
 
 const API_URL = 'http://172.16.44.32:5000/chat';
 
-function debounce(func, delay) {
-  let timeoutId;
+// Simple debounce utility
+const debounce = (fn, delay) => {
+  let timeout;
   return (...args) => {
-    if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func(...args), delay);
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delay);
   };
-}
+};
 
-const ChatScreen = () => {
-  const route = useRoute();
+export default function ChatScreen() {
+  // theme
+  const { colors, isDark } = useTheme();
+
+  // navigation & refs
   const navigation = useNavigation();
+  const route = useRoute();
   const flatListRef = useRef(null);
 
+  // font loading
+  const [fontsLoaded] = useFonts({
+    Poppins_700Bold,
+    Poppins_600SemiBold,
+    Poppins_400Regular,
+  });
+
+  // storage hooks
+  const {
+    getChatMessages,
+    saveChatMessages,
+    loadSessions,
+    saveSession,
+  } = useChatStorage();
+
+  // chat form state
   const [messages, setMessages] = useState([]);
   const [placeInput, setPlaceInput] = useState('');
   const [radiusInput, setRadiusInput] = useState('');
   const [distanceUnit, setDistanceUnit] = useState('km');
   const [descriptionInput, setDescriptionInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+
+  // session & autocomplete state
   const [sessionId, setSessionId] = useState(null);
   const [sessionOptions, setSessionOptions] = useState([]);
   const [autocompleteResults, setAutocompleteResults] = useState([]);
   const [autocompleteLoading, setAutocompleteLoading] = useState(false);
 
-  const { getChatMessages, saveChatMessages, loadSessions, saveSession } = useChatStorage();
+  // welcome message generator
+  const getWelcome = () => ({
+    id: uuidv4(),
+    sender: 'bot',
+    text: "Hi there! 👋 I can help you find great places nearby.",
+    timestamp: Date.now(),
+  });
 
-  const [fontsLoaded] = useFonts({ Poppins_700Bold, Poppins_600SemiBold, Poppins_400Regular });
-
+  // load sessions + subscribe to updates
   useEffect(() => {
+    loadSessions().then(setSessionOptions);
     const sub = DeviceEventEmitter.addListener('sessionUpdated', async () => {
       const updated = await loadSessions();
       setSessionOptions(updated);
-      if (!updated.some(s => s.id === sessionId)) resetChat();
+      if (!updated.find(s => s.id === sessionId)) {
+        resetChat();
+      }
     });
     return () => sub.remove();
-  }, [sessionId, loadSessions]);
+  }, [sessionId]);
 
-  useEffect(() => {
-    (async () => setSessionOptions(await loadSessions()))();
-  }, []);
-
+  // initialize chat on session param change
   useEffect(() => {
     (async () => {
-      const id = typeof route.params?.sessionId === 'string' ? route.params.sessionId : null;
+      const idParam = route.params?.sessionId;
+      const id = typeof idParam === 'string' ? idParam : null;
       setSessionId(id);
+
       if (id) {
-        const chat = await getChatMessages(id);
-        setMessages(chat.length ? chat : [getWelcomeMessage()]);
+        const saved = await getChatMessages(id);
+        setMessages(saved.length ? saved : [getWelcome()]);
       } else {
-        setMessages([getWelcomeMessage()]);
+        setMessages([getWelcome()]);
       }
     })();
   }, [route.params?.sessionId]);
 
+  // auto-scroll on new messages
   useEffect(() => {
     if (messages.length) {
-      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
     }
   }, [messages]);
 
+  // clear autocomplete on keyboard hide
   useEffect(() => {
-    const listener = Keyboard.addListener('keyboardDidHide', () => setAutocompleteResults([]));
+    const listener = Keyboard.addListener('keyboardDidHide', () => {
+      setAutocompleteResults([]);
+    });
     return () => listener.remove();
   }, []);
 
-  const getWelcomeMessage = () => ({
-    text: "Hi there! 👋 I can help you find great places nearby.",
-    sender: 'bot',
-    id: uuidv4(),
-    timestamp: Date.now(),
-  });
-
+  // reset chat state
   const resetChat = () => {
     setSessionId(null);
-    setMessages([getWelcomeMessage()]);
+    setMessages([getWelcome()]);
     setPlaceInput('');
     setRadiusInput('');
     setDescriptionInput('');
     navigation.setParams({ sessionId: null, newChat: true });
   };
 
-  const fetchAutocomplete = async text => {
-    if (!text.trim()) return setAutocompleteResults([]);
+  // autocomplete fetch
+  const fetchAutocomplete = async query => {
+    if (!query.trim()) {
+      setAutocompleteResults([]);
+      return;
+    }
     try {
       setAutocompleteLoading(true);
-      const res = await fetch(`${API_URL.replace('/chat', '')}/autocomplete?query=${encodeURIComponent(text)}`);
-      setAutocompleteResults((await res.json()) || []);
+      const res = await fetch(
+        `${API_URL.replace('/chat', '')}/autocomplete?query=${encodeURIComponent(query)}`
+      );
+      const list = await res.json();
+      setAutocompleteResults(list || []);
     } catch {
       setAutocompleteResults([]);
     } finally {
       setAutocompleteLoading(false);
     }
   };
-
   const debouncedFetch = useRef(debounce(fetchAutocomplete, 300)).current;
 
-  const handleRetry = async msg => {
-    if (!msg.retryData) return;
-    const { placeInput, radiusInput, descriptionInput, distanceUnit } = msg.retryData;
-    setPlaceInput(placeInput);
-    setRadiusInput(radiusInput);
-    setDistanceUnit(distanceUnit);
-    setDescriptionInput(descriptionInput);
-    await sendMessage();
-  };
+  // send or retry message
+  const sendMessage = async retryData => {
+    const place = retryData?.placeInput ?? placeInput;
+    const radius = retryData?.radiusInput ?? radiusInput;
+    const desc = retryData?.descriptionInput ?? descriptionInput;
+    const unit = retryData?.distanceUnit ?? distanceUnit;
+    if (!place.trim() || !radius.trim() || !desc.trim() || isTyping) return;
 
-  const sendMessage = async () => {
-    if (!placeInput.trim() || !radiusInput.trim() || !descriptionInput.trim() || isTyping) return;
-
-    const sessionName = `${placeInput} - ${radiusInput}${distanceUnit} - ${descriptionInput}`;
     const now = Date.now();
     const userMsg = {
-      text: `📍 ${placeInput}\n📏 ${radiusInput} ${distanceUnit}\n🔍 ${descriptionInput}`,
-      sender: 'user',
       id: uuidv4(),
+      sender: 'user',
       timestamp: now,
-      retryData: { placeInput, radiusInput, descriptionInput, distanceUnit },
+      text: `📍 ${place}\n📏 ${radius} ${unit}\n🔍 ${desc}`,
+      retryData: { placeInput: place, radiusInput: radius, descriptionInput: desc, distanceUnit: unit },
     };
 
-    const updated = [...messages, userMsg];
-    const typingMsg = { id: 'typing', sender: 'bot', typing: true, timestamp: now };
-    setMessages([...updated, typingMsg]);
+    // show typing indicator
+    setMessages(prev => [...prev, userMsg, { id: 'typing', sender: 'bot', typing: true, timestamp: now }]);
     setIsTyping(true);
     Keyboard.dismiss();
 
@@ -166,19 +196,22 @@ const ChatScreen = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          place: placeInput,
-          radius: radiusInput,
-          unit: distanceUnit,
-          description: descriptionInput,
+          place,
+          radius,
+          unit,
+          description: desc,
           conversation_id: sessionId,
         }),
       });
-      setPlaceInput('');
-      setRadiusInput('');
-      setDescriptionInput('');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
+      // clear inputs
+      setPlaceInput('');
+      setRadiusInput('');
+      setDescriptionInput('');
+
+      // possibly set new session
       let activeId = sessionId;
       if (!sessionId && data.conversation_id) {
         activeId = data.conversation_id;
@@ -187,36 +220,57 @@ const ChatScreen = () => {
       }
 
       const botMsg = {
+        id: uuidv4(),
+        sender: 'bot',
+        timestamp: Date.now(),
         text: data.summary,
         explanations: data.explanations,
-        sender: 'bot',
-        id: uuidv4(),
-        timestamp: Date.now(),
         places: data.places || [],
       };
 
-      const newMessages = [...updated, botMsg];
-      setMessages(newMessages);
+      const updated = messages.filter(m => m.id !== 'typing').concat(botMsg);
+      setMessages(updated);
 
       if (activeId) {
-        await saveChatMessages(activeId, newMessages);
-        await saveSession({ id: activeId, name: sessionName });
-        setSessionOptions(await loadSessions());
+        await saveChatMessages(activeId, updated);
+        await saveSession({ id: activeId, name: `${place} - ${radius}${unit} - ${desc}` });
         DeviceEventEmitter.emit('sessionUpdated');
       }
     } catch {
-      const failed = updated.map(m => (m.id === userMsg.id ? { ...m, failed: true } : m));
-      setMessages(failed);
+      setMessages(prev =>
+        prev.map(m => (m.id === userMsg.id ? { ...m, failed: true } : m))
+      );
     } finally {
       setIsTyping(false);
     }
   };
 
-  const navigateToMapScreen = places => navigation.navigate('MapScreen', { places });
+  // navigate retry
+  const handleRetry = item => {
+    if (item.retryData) sendMessage(item.retryData);
+  };
 
+  // navigate to map
+  const goToMap = places => {
+    if (Array.isArray(places) && places.length) {
+      navigation.navigate('MapScreen', { places });
+    }
+  };
+
+  // create styles
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
+  // wait for fonts
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  // render a message
   const renderMessage = ({ item }) => {
-    const hasPlaces = Array.isArray(item.places) && item.places.length > 0;
-
     if (item.typing) {
       return (
         <View style={[styles.messageRow, styles.botRow]}>
@@ -224,56 +278,59 @@ const ChatScreen = () => {
             <Image source={require('../../assets/images/kitty.png')} style={styles.avatarImage} />
           </View>
           <View style={[styles.messageContainer, styles.botContainer]}>
-            <View style={[styles.messageBubble, styles.botBubble]}>
-              <ActivityIndicator size="small" color={colors.primary} />
-            </View>
+            <ActivityIndicator size="small" color={colors.primary} />
           </View>
         </View>
       );
     }
 
+    const isUser = item.sender === 'user';
+    const hasPlaces = Array.isArray(item.places) && item.places.length > 0;
+
     return (
-      <View style={[styles.messageRow, item.sender === 'user' ? styles.userRow : styles.botRow]}>
-        {item.sender === 'bot' && (
+      <View style={[styles.messageRow, isUser ? styles.userRow : styles.botRow]}>
+        {!isUser && (
           <View style={styles.botAvatar}>
             <Image source={require('../../assets/images/kitty.png')} style={styles.avatarImage} />
           </View>
         )}
-        <View style={[styles.messageContainer, item.sender === 'user' ? styles.userContainer : styles.botContainer]}>
-          <View style={[styles.messageBubble, item.sender === 'user' ? styles.userBubble : styles.botBubble]}>
+        <View style={[styles.messageContainer, isUser ? styles.userContainer : styles.botContainer]}>
+          <View style={isUser ? styles.userBubble : styles.botBubble}>
             {hasPlaces ? (
               <>
                 <Text style={styles.placeSummary}>{item.text}</Text>
-                {item.places.map((place, i) => (
-                  <BlurView key={place.id} intensity={90} tint="light" style={styles.placeCard}>
-                    <Text style={styles.placeName}>
-                      {i + 1}. {place.name}
-                    </Text>
+                {item.places.map((place, idx) => (
+                  <BlurView
+                    key={place.id}
+                    tint={isDark ? 'dark' : 'light'}
+                    intensity={90}
+                    style={styles.placeCard}
+                  >
+                    <Text style={styles.placeName}>{idx + 1}. {place.name}</Text>
                     <Text style={styles.placeAddress}>📍 {place.address}</Text>
                     <Text style={styles.placeRating}>
-                      ⭐ {place.rating} ({place.user_ratings_total} reviews)
+                      ⭐ {place.rating} ({place.user_ratings_total})
                     </Text>
                     {place.opening_hours?.length > 0 && (
                       <Text style={styles.placeOpeningHours}>
                         🕒 {summarizeOpeningHours(place.opening_hours)}
                       </Text>
                     )}
-                    {place.price_level !== undefined && (
+                    {place.price_level != null && (
                       <Text style={styles.placePrice}>
                         💵 {parsePriceLevel(place.price_level)}
                       </Text>
                     )}
-                    {item.explanations?.[i] && (
+                    {item.explanations?.[idx] && (
                       <Text style={styles.placeExplanation}>
-                        💬 {item.explanations[i]}
+                        💬 {item.explanations[idx]}
                       </Text>
                     )}
                   </BlurView>
                 ))}
-                <TouchableOpacity style={styles.mapButton} onPress={() => navigateToMapScreen(item.places)}>
-                  <Text style={styles.mapButtonText}>
-                    <Icon name="map-outline" size={16} /> View on Map
-                  </Text>
+                <TouchableOpacity style={styles.mapButton} onPress={() => goToMap(item.places)}>
+                  <Icon name="map-outline" size={16} color={colors.card} />
+                  <Text style={styles.mapButtonText}>View on Map</Text>
                 </TouchableOpacity>
               </>
             ) : (
@@ -284,9 +341,9 @@ const ChatScreen = () => {
             {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </Text>
         </View>
-        {item.sender === 'user' && (
+        {isUser && (
           <View style={styles.userAvatar}>
-            <Icon name="person" size={20} color="#fff" />
+            <Icon name="person" size={20} color={colors.card} />
           </View>
         )}
       </View>
@@ -299,8 +356,12 @@ const ChatScreen = () => {
       style={styles.container}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 44 : 0}
     >
-      <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar
+          barStyle={isDark ? 'light-content' : 'dark-content'}
+          backgroundColor={colors.background}
+        />
+
         <ChatHeader
           title="Find Place"
           onBackPress={() => navigation.goBack()}
@@ -309,63 +370,60 @@ const ChatScreen = () => {
           sessionOptions={sessionOptions}
         />
 
-        {/* Messages */}
-        <View style={styles.messagesWrapper} pointerEvents="box-none">
-          <FlatList
-            ref={flatListRef}
-            data={messages}
-            keyExtractor={(item, index) => item.id ? `${item.id}-${item.timestamp}` : `msg-${index}`}
-            renderItem={renderMessage}
-            contentContainerStyle={{ paddingBottom: 300 }}
-            showsVerticalScrollIndicator={false}
-          />
-        </View>
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={item => item.id}
+          renderItem={renderMessage}
+          contentContainerStyle={{ paddingBottom: 300 }}
+          showsVerticalScrollIndicator={false}
+        />
 
-        {/* Input Card */}
+        {/* Input Area */}
         <View style={styles.inputContainer}>
           <View style={styles.inputCard}>
-            {/* Row 1: Place + Radius */}
             <View style={styles.inputRow}>
-              <View style={styles.placeInputWrapper}>
-                <TextInput
-                  style={[styles.input, styles.placeInput]}
-                  placeholder="Location (e.g. New York)"
-                  placeholderTextColor="#999"
-                  value={placeInput}
-                  onChangeText={text => {
-                    setPlaceInput(text);
-                    debouncedFetch(text);
-                  }}
-                />
-              </View>
+              <TextInput
+                style={[styles.input, styles.placeInput]}
+                placeholder="Location (e.g. New York)"
+                placeholderTextColor={colors.subtext}
+                value={placeInput}
+                onChangeText={text => {
+                  setPlaceInput(text);
+                  debouncedFetch(text);
+                }}
+              />
               <View style={styles.radiusContainer}>
                 <TextInput
                   style={[styles.input, styles.radiusInput]}
-                  placeholder="5"
-                  placeholderTextColor="#999"
+                  placeholder="dst."
+                  placeholderTextColor={colors.subtext}
                   value={radiusInput}
                   onChangeText={setRadiusInput}
                   keyboardType="numeric"
-                  onFocus={() => setAutocompleteResults([])}
                 />
-                <TouchableOpacity style={styles.unitButton} onPress={() => setDistanceUnit(u => (u === 'km' ? 'mi' : 'km'))}>
+                <TouchableOpacity
+                  style={styles.unitButton}
+                  onPress={() => setDistanceUnit(u => (u === 'km' ? 'mi' : 'km'))}
+                >
                   <Text style={styles.unitText}>{distanceUnit}</Text>
                 </TouchableOpacity>
               </View>
             </View>
 
-            {/* Suggestions */}
+            {autocompleteLoading && (
+              <ActivityIndicator size="small" color={colors.primary} />
+            )}
             {autocompleteResults.length > 0 && (
-              <ScrollView style={styles.suggestionsContainer} keyboardShouldPersistTaps="handled" nestedScrollEnabled>
-                {autocompleteResults.map((item, index) => (
+              <ScrollView style={styles.suggestionsContainer} keyboardShouldPersistTaps="handled">
+                {autocompleteResults.map((item, i) => (
                   <TouchableOpacity
-                    key={index}
-                    activeOpacity={0.7}
+                    key={i}
+                    style={styles.suggestionItem}
                     onPress={() => {
                       setPlaceInput(item.description);
                       setAutocompleteResults([]);
                     }}
-                    style={styles.suggestionItem}
                   >
                     <Text style={styles.suggestionText}>{item.description}</Text>
                   </TouchableOpacity>
@@ -373,23 +431,21 @@ const ChatScreen = () => {
               </ScrollView>
             )}
 
-            {/* Row 3: Description + Send */}
             <View style={styles.inputRow}>
               <TextInput
                 style={[styles.input, styles.descriptionInput]}
                 placeholder="What would you like to find?"
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.subtext}
                 value={descriptionInput}
                 onChangeText={setDescriptionInput}
                 multiline
-                onFocus={() => setAutocompleteResults([])}
               />
               <TouchableOpacity
                 style={[styles.sendButton, (!placeInput || !radiusInput || !descriptionInput || isTyping) && styles.sendButtonDisabled]}
-                onPress={sendMessage}
+                onPress={() => sendMessage()}
                 disabled={!placeInput || !radiusInput || !descriptionInput || isTyping}
               >
-                <Icon name="send" size={20} color="#fff" />
+                <Icon name="send" size={20} color={colors.card} />
               </TouchableOpacity>
             </View>
           </View>
@@ -397,6 +453,4 @@ const ChatScreen = () => {
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
-};
-
-export default ChatScreen;
+}

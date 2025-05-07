@@ -1,18 +1,18 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity
-} from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import styles from "./TipsCard.styles";
+// src/components/Trip/Tips/TipsCard.js
 
-export default function TipsCard({ tips }) {
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { useTheme } from "../../../context/ThemeContext";
+import createTipsCardStyles from "./TipsCard.styles";
+
+export default function TipsCard({ tips = [] }) {
+  const { colors } = useTheme();
+  const styles = createTipsCardStyles(colors);
   const [open, setOpen] = useState(true);
 
   return (
     <View style={styles.card}>
-      {/* header with chevron */}
       <TouchableOpacity
         style={styles.headerRow}
         onPress={() => setOpen(o => !o)}
@@ -21,11 +21,10 @@ export default function TipsCard({ tips }) {
         <Ionicons
           name={open ? "chevron-up-outline" : "chevron-down-outline"}
           size={24}
-          color="#333"
+          color={colors.text}
         />
       </TouchableOpacity>
 
-      {/* tips list */}
       {open && tips.map((tip, i) => (
         <Text key={i} style={styles.tipText}>
           • {tip}

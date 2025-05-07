@@ -29,10 +29,7 @@ def handle_day_trip(trip: TripRequest) -> TripOut:
     """
     # ─── PREPARE CHAT HISTORY & SESSION ID ─────────────────────────────────────
     messages: List[ChatMessage] = []
-    convo_id = trip.conversation_id or str(uuid4())
-
-    print("🔔 [handle_day_trip] got TripRequest:")
-    print(json.dumps(trip.model_dump(), ensure_ascii=False, indent=2))
+    convo_id = str(uuid4())
 
     # ─── 1) ESSENTIAL / GENERAL PLACES ────────────────────────────────────────
     essential = _get_ai_essential_place_list(trip, messages)
@@ -153,7 +150,7 @@ def _get_ai_essential_place_list(
     messages.append(ChatMessage(role="user", content=user))
 
     resp = client.chat.completions.create(
-        model="gpt-4-turbo",
+        model="gpt-3.5-turbo",
         temperature=0.0,
         messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
         max_tokens=150,
@@ -200,7 +197,7 @@ def _get_ai_itinerary_place_list(
     messages.append(ChatMessage(role="user", content=user))
 
     resp = client.chat.completions.create(
-        model="gpt-4-turbo",
+        model="gpt-3.5-turbo",
         temperature=0.0,
         messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
         max_tokens=200,
@@ -240,7 +237,7 @@ def _get_ai_itinerary_segments(
     messages.append(ChatMessage(role="user", content=user))
 
     resp = client.chat.completions.create(
-        model="gpt-4-turbo",
+        model="gpt-3.5-turbo",
         temperature=0.0,
         messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
         max_tokens=200,
@@ -286,7 +283,7 @@ def _get_ai_summary_and_tips(
     messages.append(ChatMessage(role="user", content=user))
 
     resp = client.chat.completions.create(
-        model="gpt-4-turbo",
+        model="gpt-3.5-turbo",
         temperature=0.0,
         messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
         max_tokens=300,

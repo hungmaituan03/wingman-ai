@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
@@ -9,14 +10,14 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 
-// Navigation
+// Navigation stacks
 import AuthStack from './navigation/AuthStack';
 import MainStack from './navigation/MainStack';
 import LoadingScreen from './screens/LoadingScreen';
 
 const RootStack = createNativeStackNavigator();
 
-function App() {
+export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
@@ -24,24 +25,14 @@ function App() {
           <AuthProvider>
             <StatusBar style="auto" />
             <NavigationContainer>
-              <RootStack.Navigator
-                screenOptions={{
-                  headerShown: false
-                }}
-              >
-                <RootStack.Screen 
-                  name="Loading" 
+              <RootStack.Navigator screenOptions={{ headerShown: false }}>
+                <RootStack.Screen
+                  name="Loading"
                   component={LoadingScreen}
                   options={{ gestureEnabled: false }}
                 />
-                <RootStack.Screen 
-                  name="Auth" 
-                  component={AuthStack}
-                />
-                <RootStack.Screen 
-                  name="Main" 
-                  component={MainStack}
-                />
+                <RootStack.Screen name="Authentication" component={AuthStack} />
+                <RootStack.Screen name="Main" component={MainStack} />
               </RootStack.Navigator>
             </NavigationContainer>
           </AuthProvider>
@@ -50,6 +41,3 @@ function App() {
     </GestureHandlerRootView>
   );
 }
- 
-
-export default App;

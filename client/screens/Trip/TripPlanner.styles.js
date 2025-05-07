@@ -1,218 +1,182 @@
+// src/screens/TripPlanner.styles.js
+
 import { StyleSheet } from "react-native";
-import Colors from "../../constants/Colors";
-import { Colours } from "../../constants/Colours";
 
-const commonContainer = {
-  backgroundColor: "white",
-  borderRadius: 16,
-  padding: 16,
-};
+export default (colors) =>
+  StyleSheet.create({
+    /** Layout Base **/
+    safeArea: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    flex: {
+      flex: 1,
+    },
 
-export default StyleSheet.create({
-  /** Layout Base **/
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colours[50],
-    position: 'relative',
-    overflow: 'visible',
-  },
-  flex: {
-    flex: 1,
-  },
+    /** ScrollView **/
+    scrollView: {
+      backgroundColor: colors.background,
+    },
+    contentContainer: {
+      flexGrow: 1,
+      padding: 16,
+    },
 
-  /** Header **/
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    backgroundColor: Colours[50],
+    /** Form Field Wrappers **/
+    fieldContainer: {
+      marginBottom: 16,
+    },
+    fieldLabel: {
+      fontSize: 14,
+      lineHeight: 20,
+      color: colors.subtext,
+      fontFamily: "Poppins_400Regular",
+      marginBottom: 4,
+    },
 
-  },
-  backIcon: {
-    position: "absolute",
-    left: 16,
-    padding: 4,
-  },
-  header: {
-    fontSize: 18,
-    fontFamily: "Poppins_700Bold",
-    color: Colors.dark.primary,
-    zIndex: 1,
-    textShadowColor: "rgba(0, 0, 0, 0.3)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
+    /** Inputs **/
+    icon: {
+      position: "absolute",
+      top: 14,
+      left: 12,
+      color: colors.subtext,
+      zIndex: 1,
+    },
+    input: {
+      width: "100%",
+      height: 50,
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: 12,
+      fontSize: 16,
+      fontFamily: "Poppins_400Regular",
+      color: colors.text,             // <-- text color for dark/light
+      elevation: 2,
+      shadowColor: "#000",
+      shadowOpacity: 0.05,
+      shadowOffset: { width: 0, height: 2 },
+      shadowRadius: 4,
+    },
+    multiLineInput: {
+      textAlignVertical: "top",
+      paddingTop: 8,
+      paddingBottom: 8,
+      fontFamily: "Poppins_400Regular",
+      color: colors.text,             // <-- also ensure multiline text is visible
+    },
 
-  /** Main Form Container **/
-  container: {
-    flexGrow: 1,
-    padding: 16,
-    backgroundColor: Colours[50],
-    overflow: 'visible',
-  },
-  inputContainer: {
-    ...commonContainer,
-    backgroundColor: Colours[50],
-    overflow: 'visible',
-    zIndex: 10,
-    position: 'relative',
-    elevation: 5,
-  },
-  input: {
-    backgroundColor: "white",
-    color: Colours[950],
-    borderRadius: 20,
-    height: 44,
-    paddingHorizontal: 12,
-    marginTop: 10,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: Colours[100],
-    fontFamily: "Poppins_400Regular",
-  },
+    /** Budget + Currency Row **/
+    budgetCurrencyContainer: {
+      flexDirection: "row",
+      marginBottom: 16,
+    },
+    budgetColumn: {
+      flex: 2,
+      marginRight: 8,
+    },
+    currencyColumn: {
+      flex: 1,
+    },
 
-  multiLineInput: {
-    textAlignVertical: "top",
-    paddingTop: 10,
-    paddingBottom: 10,
-    fontFamily: "Poppins_400Regular",
-    lineHeight: 20,
-    color: Colours[950],
-  },
+    /** Advanced Filters **/
+    advancedButton: {
+      marginTop: 16,
+      color: colors.primary,
+      textAlign: "center",
+      fontFamily: "Poppins_600SemiBold",
+    },
+    advancedContainer: {
+      marginTop: 12,
+      backgroundColor: colors.subcard,
+      borderRadius: 16,
+      padding: 16,
+    },
+    advancedRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginVertical: 8,
+    },
+    advancedLabel: {
+      fontSize: 16,
+      color: colors.text,
+      flex: 1,
+      fontFamily: "Poppins_600SemiBold",
+    },
 
-  /** Budget + Currency Row **/
-  budgetCurrencyRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 8,
-  },
-  budgetInput: {
-    flex: 2,
-    backgroundColor: "white",
-    color: Colours[950],
-    borderRadius: 20,
-    height: 44,
-    paddingHorizontal: 12,
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: Colours[100],
-    fontFamily: "Poppins_400Regular",
-  },
-  currencyInput: {
-    flex: 1,
-    backgroundColor: "white",
-    color: Colours[950],
-    borderRadius: 20,
-    height: 44,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: Colours[100],
-    fontFamily: "Poppins_400Regular",
-  },
+    /** Interests Rating Box **/
+    ratingBox: {
+      marginTop: 20,
+      padding: 16,
+      backgroundColor: colors.subcard,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 3,
+    },
+    circleRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginTop: 8,
+    },
+    circle: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: colors.subcard,
+      justifyContent: "center",
+      alignItems: "center",
+      marginHorizontal: 4,
+      backgroundColor: colors.surface,
+    },
+    circleSelected: {
+      backgroundColor: colors.primary,
+    },
+    circleText: {
+      fontSize: 14,
+      fontFamily: "Poppins_400Regular",
+      color: colors.text,
+    },
+    circleTextSelected: {
+      fontSize: 14,
+      fontFamily: "Poppins_400Regular",
+      color: colors.background,
+    },
 
-  /** Advanced Filters **/
-  advancedButton: {
-    marginTop: 16,
-    color: Colours[900],
-    textAlign: "center",
-    fontFamily: "Poppins_600SemiBold",
-  },
-  advancedContainer: {
-    position: "relative",
-    marginTop: 12,
-    backgroundColor: Colours[200],
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: "column",
-    flexShrink: 0,
-    alignSelf: "stretch",
-  },
-  advancedRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginVertical: 8,
-  },
-  advancedLabel: {
-    fontSize: 16,
-    color: Colours[800],
-    flex: 1,
-    fontFamily: "Poppins_600SemiBold",
-  },
-  ratingBox: {
-    marginTop: 20,
-    padding: 16,
-    backgroundColor: Colours[400],
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: Colours[100],
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-  },
+    /** Submit Button **/
+    buttonBox: {
+      marginTop: 24,
+      alignItems: "center",
+    },
+    generateButton: {
+      width: 64,
+      height: 64,
+      backgroundColor: colors.primary,
+      borderRadius: 32,
+      justifyContent: "center",
+      alignItems: "center",
+      elevation: 5,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 3,
+    },
 
-  /** Circle Rating (for Interests, Mobility, Engagement) **/
-  circleRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 8,
-  },
-  circle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 4,
-    backgroundColor: "white",
-  },
-  circleSelected: {
-    backgroundColor: Colours[700],
-  },
-  circleText: {
-    fontSize: 14,
-    fontFamily: "Poppins_400Regular",
-    color: Colours[950],
-  },
-  circleTextSelected: {
-    fontSize: 14,
-    fontFamily: "Poppins_400Regular",
-    color: "white",
-  },
-
-  /** Submit Button **/
-  buttonBox: {
-    marginTop: 24,
-    alignItems: "center",
-  },
-  generateButton: {
-    width: 64,
-    height: 64,
-    backgroundColor: Colours[900],
-    borderRadius: 32,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-  },
-
-  /** Error and Loading **/
-  errorText: {
-    color: Colors.dark.error,
-    textAlign: "center",
-    marginTop: 8,
-    fontFamily: "Poppins_400Regular",
-  },
-  loader: {
-    marginTop: 16,
-  },
-});
+    /** Error and Loading **/
+    errorText: {
+      color: colors.error,
+      textAlign: "center",
+      marginTop: 8,
+      fontFamily: "Poppins_400Regular",
+    },
+    loader: {
+      marginTop: 16,
+    },
+  });

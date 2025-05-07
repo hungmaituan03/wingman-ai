@@ -1,111 +1,111 @@
 import { StyleSheet, Dimensions, Platform, StatusBar } from 'react-native';
-import Colors from '../../../constants/Colors';
 
 const { width, height } = Dimensions.get('window');
-const theme = Colors.dark;
 
-export default StyleSheet.create({
+export default colors =>
+  StyleSheet.create({
     drawerContainer: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        height: height,
-        width: width * 0.8,
-        backgroundColor: 'white',
-        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 30 : 60,
-        paddingHorizontal: 16,
-        zIndex: 999,
-        overflow: 'hidden',
-        elevation: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 2, height: 0 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: width * 0.8,
+      height,
+      backgroundColor: colors.card,
+      paddingTop:
+        Platform.OS === 'android'
+          ? StatusBar.currentHeight || 30
+          : 60,
+      paddingHorizontal: 16,
+      zIndex: 999,
+      overflow: 'hidden',
+      elevation: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 2, height: 0 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
     },
+
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 16,
     },
+
     drawerTitle: {
-        fontSize: 20,
-        fontFamily: 'Poppins_700Bold',
-        color: Colors.dark.primary,
-        padding: 10,
+      fontSize: 20,
+      fontFamily: 'Poppins_700Bold',
+      color: colors.primary,
+      padding: 10,
     },
+
     searchRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 16,
     },
     searchInput: {
-        flex: 1,
-        backgroundColor: '#f9f9f9',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        marginRight: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,   
-        fontFamily: 'Poppins_400Regular',   
-        color: 'black',
-        fontSize: 16,         
+      flex: 1,
+      backgroundColor: colors.subcard,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 8,
+      marginRight: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+      fontFamily: 'Poppins_400Regular',
+      fontSize: 16,
+      color: colors.text,
     },
-    sessionList: {
-        flex: 1,
-        marginBottom: 16,
-    },
-    sessionItem: {
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-        backgroundColor: '#f9f9f9',
-        borderRadius: 8,
-        marginBottom: 8,
-    },      
-    sessionText: {
-        fontSize: 16,
-        fontFamily: 'Poppins_400Regular',
-        color: '#333',
-    },      
-    emptyText: {
-        textAlign: 'center',
-        fontSize: 16,
-        color: theme.textSecondary,
-        marginTop: 20,
-        fontFamily: 'Poppins_400Regular',
-    },
+
     newChatButton: {
-        padding: 4,
-        justifyContent: 'center',
-        alignItems: 'center',
+      padding: 4,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     newChatText: {
-        color: 'white',
-        fontSize: 16,
-        fontFamily: 'Poppins_600SemiBold',
+      color: colors.primary,
+      fontSize: 16,
+      fontFamily: 'Poppins_600SemiBold',
     },
-    deleteButton: {
-        padding: 8,
+
+    sessionList: {
+      flex: 1,
+      marginBottom: 16,
     },
-    rightActionContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        backgroundColor: '#fff',
-        paddingHorizontal: 10,
-        borderRadius: 8,
-        marginBottom: 8,
+
+    sessionItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      backgroundColor: colors.subcard,
+      borderRadius: 8,
+      marginBottom: 8,
     },
-    actionButton: {
-        padding: 10,
-        marginLeft: 8,
-        backgroundColor: '#f2f2f2',
-        borderRadius: 6,
+    sessionTextContainer: {
+      flex: 1,
     },
-});
+    sessionText: {
+      fontSize: 16,
+      fontFamily: 'Poppins_400Regular',
+      color: colors.text,
+    },
+
+    moreBtn: {
+      padding: 6,
+      borderRadius: 4,
+    },
+
+    emptyText: {
+      textAlign: 'center',
+      fontSize: 16,
+      color: colors.subtext,
+      marginTop: 20,
+      fontFamily: 'Poppins_400Regular',
+    },
+  });

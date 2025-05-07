@@ -2,21 +2,23 @@
 
 import React, { useRef, useEffect } from "react";
 import {
-  View,
   ScrollView,
   SafeAreaView,
   Animated,
-  StyleSheet,
 } from "react-native";
+import { useTheme } from "../../context/ThemeContext";
 import HeaderRow from "../../components/header";
 import OverviewCard from "../../components/Trip/Overview/OverviewCard";
 import TipsCard from "../../components/Trip/Tips/TipsCard";
 import BudgetCard from "../../components/Trip/Budget/BudgetCard";
 import EssentialsCard from "../../components/Trip/Essentials/EssentialsCard";
 import ItineraryCard from "../../components/Trip/Itinerary/ItineraryDayCard";
-import styles from "./TripPlanner.styles";
+import createStyles from "./TripPlanner.styles";
 
 export default function TripResults({ route }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   const {
     summary,
     tips = [],
@@ -27,11 +29,14 @@ export default function TripResults({ route }) {
 
   // build an array of the sections we’re actually rendering
   const sections = [
-    summary && { key: "overview",      component: <OverviewCard summary={summary} /> },
-    tips.length > 0 && { key: "tips",   component: <TipsCard tips={tips} /> },
-    budget && { key: "budget",          component: <BudgetCard budget={budget} /> },
-    general_places.length > 0 && { key: "essentials", component: <EssentialsCard places={general_places} /> },
-    itinerary && { key: "itinerary",    component: <ItineraryCard itinerary={itinerary} /> },
+    summary && { key: "overview", component: <OverviewCard summary={summary} /> },
+    tips.length > 0 && { key: "tips", component: <TipsCard tips={tips} /> },
+    budget && { key: "budget", component: <BudgetCard budget={budget} /> },
+    general_places.length > 0 && {
+      key: "essentials",
+      component: <EssentialsCard places={general_places} />,
+    },
+    itinerary && { key: "itinerary", component: <ItineraryCard itinerary={itinerary} /> },
   ].filter(Boolean);
 
   // one Animated.Value per section

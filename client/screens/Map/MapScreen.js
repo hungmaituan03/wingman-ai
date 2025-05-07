@@ -14,22 +14,19 @@ import {
   Platform,
   Linking,
 } from 'react-native';
-
+import { useTheme } from '../../context/ThemeContext';
 import {
   isFavorited,
   addFavorite,
   removeFavorite,
 } from '../../services/storage/favoritesStorage';
-
 import {
   getTodayOpeningHours,
   parsePriceLevel,
 } from '../../utils/stringParsers';
-
 import Icon from 'react-native-vector-icons/Ionicons';
 import MapView, { Marker } from 'react-native-maps';
-import colors from '../../constants/Colors';
-import styles from './MapScreen.styles';
+import createStyles from './MapScreen.styles';
 
 // Enable smooth layout transitions on Android
 if (
@@ -43,15 +40,18 @@ const LATITUDE_DELTA = 0.01;
 const LONGITUDE_DELTA = 0.01;
 
 /** InfoBox: Reusable component to display a titled box with custom content */
-const InfoBox = ({ title, children }) => (
-  <View style={styles.infoBox}>
-    <Text style={styles.boxHeader}>{title}</Text>
-    <View style={styles.boxContent}>{children}</View>
+const InfoBox = ({ title, children, boxStyles }) => (
+  <View style={boxStyles.infoBox}>
+    <Text style={boxStyles.boxHeader}>{title}</Text>
+    <View style={boxStyles.boxContent}>{children}</View>
   </View>
 );
 
 const MapScreen = ({ route, navigation }) => {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const { places } = route.params;
+
   const [activeMarker, setActiveMarker] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -93,21 +93,23 @@ const MapScreen = ({ route, navigation }) => {
 
   const renderCollapsedContent = () => (
     <View>
-      <Text style={styles.placeAddress}>{place.address}</Text>
+      <Text style={[styles.placeAddress, { color: colors.text }]}>
+        {place.address}
+      </Text>
       <View style={styles.infoRow}>
-        <InfoBox title="Rating">
+        <InfoBox title="Rating" boxStyles={styles}>
           <Text style={styles.placeRating}>{place.rating} ⭐</Text>
-          <Text style={styles.boxText}>
+          <Text style={[styles.boxText, { color: colors.text }]}>
             {place.user_ratings_total ?? 0} reviews
           </Text>
         </InfoBox>
-        <InfoBox title="Hours">
-          <Text style={styles.boxText}>
+        <InfoBox title="Hours" boxStyles={styles}>
+          <Text style={[styles.boxText, { color: colors.text }]}>
             {getTodayOpeningHours(place.opening_hours)}
           </Text>
         </InfoBox>
-        <InfoBox title="Prices">
-          <Text style={styles.boxText}>
+        <InfoBox title="Prices" boxStyles={styles}>
+          <Text style={[styles.boxText, { color: colors.text }]}>
             {parsePriceLevel(place.price_level)}
           </Text>
         </InfoBox>
@@ -130,7 +132,9 @@ const MapScreen = ({ route, navigation }) => {
               .join(' ')}`;
             return (
               <View key={type} style={styles.tagBox}>
-                <Text style={styles.tagBoxText}>{label}</Text>
+                <Text style={styles.tagBoxText}>
+                  {label}
+                </Text>
               </View>
             );
           })}
@@ -138,31 +142,37 @@ const MapScreen = ({ route, navigation }) => {
       )}
 
       {/* Address */}
-      <Text style={styles.sectionHeader}>Address</Text>
-      <Text style={styles.sectionText}>{place.address}</Text>
+      <Text style={[styles.sectionHeader, { color: colors.text }]}>
+        Address
+      </Text>
+      <Text style={[styles.sectionText, { color: colors.text }]}>
+        {place.address}
+      </Text>
 
       {/* Boxes */}
       <View style={styles.infoRow}>
-        <InfoBox title="Rating">
+        <InfoBox title="Rating" boxStyles={styles}>
           <Text style={styles.placeRating}>{place.rating} ⭐</Text>
-          <Text style={styles.boxText}>
+          <Text style={[styles.boxText, { color: colors.text }]}>
             {place.user_ratings_total ?? 0} reviews
           </Text>
         </InfoBox>
-        <InfoBox title="Hours">
-          <Text style={styles.boxText}>
+        <InfoBox title="Hours" boxStyles={styles}>
+          <Text style={[styles.boxText, { color: colors.text }]}>
             {getTodayOpeningHours(place.opening_hours)}
           </Text>
         </InfoBox>
-        <InfoBox title="Prices">
-          <Text style={styles.boxText}>
+        <InfoBox title="Prices" boxStyles={styles}>
+          <Text style={[styles.boxText, { color: colors.text }]}>
             {parsePriceLevel(place.price_level)}
           </Text>
         </InfoBox>
       </View>
 
       {/* Photos */}
-      <Text style={styles.sectionHeader}>Photos</Text>
+      <Text style={[styles.sectionHeader, { color: colors.text }]}>
+        Photos
+      </Text>
       <View style={styles.imageRow}>
         {(place.photoUrls ?? []).map((url, idx) => (
           <TouchableOpacity
@@ -210,7 +220,7 @@ const MapScreen = ({ route, navigation }) => {
               <Text style={styles.markerText}>
                 {p.rating?.toFixed(1) ?? 'N/A'}
               </Text>
-              <Icon name="star" size={12} color="#FFD700" />
+              <Icon name="star" size={12} color={'yellow'}/>
             </View>
           </Marker>
         ))}
@@ -228,9 +238,11 @@ const MapScreen = ({ route, navigation }) => {
 
       {activeMarker !== null && (
         <View style={isExpanded ? styles.expandedCard : styles.collapsedCard}>
-          {/* ─── Header Row ───────────────────────────── */}
+          {/* Header Row */}
           <View style={styles.headerRow}>
-            <Text style={styles.placeTitle}>{place.name}</Text>
+            <Text style={[styles.placeTitle, { color: colors.text }]}>
+              {place.name}
+            </Text>
             <View style={styles.headerButtons}>
               <TouchableOpacity
                 style={styles.iconButton}
@@ -245,7 +257,7 @@ const MapScreen = ({ route, navigation }) => {
                 <Icon
                   name={isFavorite ? 'heart' : 'heart-outline'}
                   size={20}
-                  color={isFavorite ? 'red' : colors.primary}
+                  color={isFavorite ? colors.error : colors.primary}
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -253,7 +265,11 @@ const MapScreen = ({ route, navigation }) => {
                 onPress={toggleCard}
               >
                 <Icon
-                  name={isExpanded ? 'chevron-down-circle' : 'chevron-up-circle'}
+                  name={
+                    isExpanded
+                      ? 'chevron-down-circle'
+                      : 'chevron-up-circle'
+                  }
                   size={20}
                   color={colors.primary}
                 />
@@ -261,7 +277,7 @@ const MapScreen = ({ route, navigation }) => {
             </View>
           </View>
 
-          {/* ─── Body Content ─────────────────────────── */}
+          {/* Body Content */}
           <View style={styles.cardBody}>
             {isExpanded
               ? renderExpandedContent()
@@ -272,11 +288,7 @@ const MapScreen = ({ route, navigation }) => {
 
       {/* Full-screen image modal */}
       {modalVisible && selectedImage && (
-        <Modal
-          visible={modalVisible}
-          transparent
-          animationType="fade"
-        >
+        <Modal visible={modalVisible} transparent animationType="fade">
           <View style={styles.modalContainer}>
             <TouchableOpacity
               style={styles.modalClose}
@@ -285,7 +297,7 @@ const MapScreen = ({ route, navigation }) => {
                 setSelectedImage(null);
               }}
             >
-              <Icon name="close" size={30} color="#FFF" />
+              <Icon name="close" size={30} color={colors.text} />
             </TouchableOpacity>
             <Image
               source={{ uri: selectedImage }}

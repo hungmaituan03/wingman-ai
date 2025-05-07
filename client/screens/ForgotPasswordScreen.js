@@ -1,41 +1,45 @@
+// src/screens/ForgotPasswordScreen.js
+
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   ActivityIndicator,
-  Alert
+  Alert,
 } from 'react-native';
+import { useTheme } from '../context/ThemeContext';               // ← pull in your theme
 import { resetPassword } from '../services/firebases/auth';
 import Icon from 'react-native-vector-icons/Ionicons';
-import colors from '../constants/Colors';
 
 export default function ForgotPasswordScreen({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
+  const { colors } = useTheme();                                  // ← get dynamic colors
+
+  const [email, setEmail]       = useState('');
+  const [isLoading, setIsLoading]   = useState(false);
+  const [emailSent, setEmailSent]   = useState(false);
 
   const handleResetPassword = async () => {
-    if (!email) {
+    if (!email.trim()) {
       Alert.alert('Error', 'Please enter your email address');
       return;
     }
 
     setIsLoading(true);
     try {
-      await resetPassword(email);
+      await resetPassword(email.trim());
       setEmailSent(true);
     } catch (error) {
-      let errorMessage = "Failed to send reset email. Please try again.";
+      let errorMessage = 'Failed to send reset email. Please try again.';
       if (error.code === 'auth/user-not-found') {
-        errorMessage = "No account found with this email address";
+        errorMessage = 'No account found with this email address';
       } else if (error.code === 'auth/invalid-email') {
-        errorMessage = "Please enter a valid email address";
+        errorMessage = 'Please enter a valid email address';
       }
       Alert.alert('Error', errorMessage);
     } finally {
@@ -45,17 +49,21 @@ export default function ForgotPasswordScreen({ navigation }) {
 
   if (emailSent) {
     return (
-      <View style={[styles.successContainer, { backgroundColor: colors.dark.background }]}>
-        <Icon name="mail-open-outline" size={60} color={colors.dark.primary} style={styles.successIcon} />
-        <Text style={[styles.successTitle, { color: colors.dark.text }]}>Check Your Email</Text>
-        <Text style={[styles.successText, { color: colors.dark.textSecondary }]}>
+      <View style={[styles.successContainer, { backgroundColor: colors.background }]}>
+        <Icon name="mail-open-outline" size={60} color={colors.primary} style={styles.successIcon} />
+        <Text style={[styles.successTitle, { color: colors.text }]}>
+          Check Your Email
+        </Text>
+        <Text style={[styles.successText, { color: colors.subtext }]}>
           We've sent a password reset link to {email}. Please check your inbox.
         </Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={[styles.backButtonText, { color: colors.dark.primary }]}>Back to Login</Text>
+          <Text style={[styles.backButtonText, { color: colors.primary }]}>
+            Back to Login
+          </Text>
         </TouchableOpacity>
       </View>
     );
@@ -64,37 +72,39 @@ export default function ForgotPasswordScreen({ navigation }) {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={[styles.container, { backgroundColor: colors.dark.background }]}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
       >
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Icon name="arrow-back" size={24} color={colors.dark.text} />
+          <Icon name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
 
         <View style={styles.content}>
-          <Icon name="lock-closed-outline" size={60} color={colors.dark.primary} style={styles.icon} />
-          <Text style={[styles.title, { color: colors.dark.text }]}>Forgot Password?</Text>
-          <Text style={[styles.subtitle, { color: colors.dark.textSecondary }]}>
+          <Icon name="lock-closed-outline" size={60} color={colors.primary} style={styles.icon} />
+          <Text style={[styles.title, { color: colors.text }]}>
+            Forgot Password?
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.subtext }]}>
             Enter your email and we'll send you a link to reset your password
           </Text>
 
           <TextInput
             style={[
-              styles.input, 
-              { 
-                backgroundColor: colors.dark.card,
-                color: colors.dark.text,
-                borderColor: colors.dark.primary 
-              }
+              styles.input,
+              {
+                backgroundColor: colors.card,
+                color: colors.text,
+                borderColor: colors.primary,
+              },
             ]}
             placeholder="Email address"
-            placeholderTextColor={colors.dark.textSecondary}
+            placeholderTextColor={colors.subtext}
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -102,27 +112,27 @@ export default function ForgotPasswordScreen({ navigation }) {
             autoCorrect={false}
           />
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[
-              styles.button, 
-              { backgroundColor: colors.dark.primary },
-              isLoading && styles.buttonDisabled
+              styles.button,
+              { backgroundColor: colors.primary },
+              isLoading && styles.buttonDisabled,
             ]}
             onPress={handleResetPassword}
             disabled={isLoading}
           >
             {isLoading ? (
-              <ActivityIndicator color="white" />
+              <ActivityIndicator color={colors.card} />
             ) : (
               <Text style={styles.buttonText}>Send Reset Link</Text>
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.secondaryButton}
             onPress={() => navigation.goBack()}
           >
-            <Text style={[styles.secondaryButtonText, { color: colors.dark.primary }]}>
+            <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>
               Remember your password? Sign In
             </Text>
           </TouchableOpacity>
@@ -133,13 +143,8 @@ export default function ForgotPasswordScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    paddingBottom: 40,
-  },
+  container: { flex: 1 },
+  scrollContainer: { flexGrow: 1, paddingBottom: 40 },
   backButton: {
     position: 'absolute',
     top: Platform.OS === 'ios' ? 44 : 30,
@@ -154,9 +159,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     marginTop: 80,
   },
-  icon: {
-    marginBottom: 20,
-  },
+  icon: { marginBottom: 20 },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -186,29 +189,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
+  buttonDisabled: { opacity: 0.7 },
   buttonText: {
-    color: 'white',
+    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
-  secondaryButton: {
-    marginTop: 10,
-  },
-  secondaryButtonText: {
-    fontSize: 14,
-  },
+  secondaryButton: { marginTop: 10 },
+  secondaryButtonText: { fontSize: 14 },
   successContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 30,
   },
-  successIcon: {
-    marginBottom: 20,
-  },
+  successIcon: { marginBottom: 20 },
   successTitle: {
     fontSize: 22,
     fontWeight: 'bold',

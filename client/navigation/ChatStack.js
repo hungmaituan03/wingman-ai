@@ -1,44 +1,56 @@
-import React, { useEffect } from 'react';
+// navigation/ChatStack.js
+
+import React, { useEffect, useCallback } from 'react';
+import { Dimensions, DeviceEventEmitter } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { DeviceEventEmitter } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
+import { useChatStorage } from '../hooks/useChatStorage';
 
 import ChatScreen from '../screens/Chat/ChatScreen';
 import MapScreen from '../screens/Map/MapScreen';
 import ChatDrawer from '../components/Chat/ChatDrawer';
-import { useChatStorage } from '../hooks/useChatStorage';
 
-const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
+const Stack  = createNativeStackNavigator();
+const drawerWidth = Dimensions.get('window').width * 0.8;
 
-const ChatStack = ({ navigation }) => {
-  const { sessionList, loadSessions, deleteSession, renameSession } = useChatStorage(); // ✅ Add deleteSession, renameSession
+export default function ChatStack({ navigation }) {
+  const { colors } = useTheme();
+  const {
+    sessionList,
+    loadSessions,
+    deleteSession,
+    renameSession,
+  } = useChatStorage();
 
+  // Load sessions on mount and when "sessionUpdated" fires
   useEffect(() => {
-    const unsubscribeFocus = navigation.addListener('focus', loadSessions);
-    const subscription = DeviceEventEmitter.addListener('sessionUpdated', async () => {
-      console.log('🛎️ Received sessionUpdated event, reloading sessions...');
-      await loadSessions();
-    });
+    loadSessions();
+    const sub = DeviceEventEmitter.addListener('sessionUpdated', loadSessions);
+    return () => sub.remove();
+  }, [loadSessions]);
 
-    return () => {
-      unsubscribeFocus();
-      subscription.remove();
-    };
+  // Re-load whenever this screen regains focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', loadSessions);
+    return unsubscribe;
   }, [navigation, loadSessions]);
 
-  const handleSelectSession = (id) => {
-    navigation.navigate('Chat', {
-      screen: 'ChatMain',
-      params: {
-        screen: 'ChatScreen',
-        params: { sessionId: id },
-      },
-    });
-  };
+  const handleSelectSession = useCallback(
+    id => {
+      navigation.navigate('Chat', {
+        screen: 'ChatMain',
+        params: {
+          screen: 'ChatScreen',
+          params: { sessionId: id },
+        },
+      });
+    },
+    [navigation]
+  );
 
-  const handleNewChat = async () => {
-    console.log('🆕 New chat button clicked');
+  const handleNewChat = useCallback(() => {
     navigation.navigate('Chat', {
       screen: 'ChatMain',
       params: {
@@ -46,20 +58,31 @@ const ChatStack = ({ navigation }) => {
         params: { newChat: true },
       },
     });
-  };
+  }, [navigation]);
 
-  const renderDrawerContent = (props) => (
+  const renderDrawerContent = props => (
     <ChatDrawer
       {...props}
       sessionList={sessionList}
       onSelect={handleSelectSession}
       onNewChat={handleNewChat}
-      sessionActions={{ deleteSession, renameSession }} // ✅ Pass sessionActions cleanly
+      sessionActions={{ deleteSession, renameSession }}
     />
   );
 
   return (
-    <Drawer.Navigator drawerContent={renderDrawerContent} screenOptions={{ headerShown: false }}>
+    <Drawer.Navigator
+      drawerContent={renderDrawerContent}
+      screenOptions={{
+        headerShown: false,
+        drawerStyle: {
+          width: drawerWidth,
+          backgroundColor: colors.card,
+        },
+        overlayColor: colors.overlay,
+        drawerType: 'slide',
+      }}
+    >
       <Drawer.Screen name="ChatMain">
         {() => (
           <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -70,6 +93,4 @@ const ChatStack = ({ navigation }) => {
       </Drawer.Screen>
     </Drawer.Navigator>
   );
-};
-
-export default ChatStack;
+}

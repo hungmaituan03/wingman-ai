@@ -10,7 +10,7 @@ export default function LoadingScreen({ navigation }) {
     if (!loading) {
       navigation.reset({
         index: 0,
-        routes: [{ name: user ? 'Main' : 'Auth' }]
+        routes: [{ name: user ? 'Main' : 'Authentication' }]
       });
     }
   }, [user, loading]);

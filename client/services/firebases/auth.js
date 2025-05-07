@@ -1,33 +1,28 @@
-import { 
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    sendPasswordResetEmail,
-    signOut,
-    onAuthStateChanged
-  } from 'firebase/auth';
-  import { auth } from './config';
-  
-  // Register new user
-  export const register = (email, password) => {
-    return createUserWithEmailAndPassword(auth, email, password);
-  };
-  
-  // Login existing user
-  export const login = (email, password) => {
-    return signInWithEmailAndPassword(auth, email, password);
-  };
-  
-  // Password reset
-  export const resetPassword = (email) => {
-    return sendPasswordResetEmail(auth, email);
-  };
-  
-  // Logout
-  export const logout = async () => {
-    await auth.signOut();
-  };
-  
-  // Auth state listener
-  export const onAuthStateChange = (callback) => {
-    return onAuthStateChanged(auth, callback);
-  };
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+} from 'firebase/auth';
+import { getAuthInstance } from './config';
+
+// Register a new user
+export const register = (email, pass) =>
+  createUserWithEmailAndPassword(getAuthInstance(), email, pass);
+
+// Sign in
+export const login = (email, pass) =>
+  signInWithEmailAndPassword(getAuthInstance(), email, pass);
+
+// Send a password reset email
+export const resetPassword = (email) =>
+  sendPasswordResetEmail(getAuthInstance(), email);
+
+// Sign out
+export const logout = () =>
+  firebaseSignOut(getAuthInstance());
+
+// Listen for auth state changes
+export const onAuthStateChangedListener = (cb) =>
+  onAuthStateChanged(getAuthInstance(), cb);

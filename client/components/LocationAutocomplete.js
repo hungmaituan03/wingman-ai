@@ -1,15 +1,18 @@
-import React, { useState, useRef, useCallback } from 'react';
+// src/components/LocationAutocomplete.js
+
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
+  Text,
   TextInput,
   TouchableOpacity,
-  Text,
   ActivityIndicator,
   StyleSheet,
   Platform,
+  Keyboard,
 } from 'react-native';
-import debounce from 'lodash.debounce';
-import { Colours } from '../constants/Colours';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '../context/ThemeContext';
 
 export default function LocationAutocomplete({
   value,
@@ -18,21 +21,43 @@ export default function LocationAutocomplete({
   placeholder = 'Enter location',
   endpoint,
   debounceTime = 300,
+  minLength = 3,
 }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
+  const [searchTerm, setSearchTerm] = useState(value);
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // 1. Create a debounced fetch function
-  const fetchSuggestions = useCallback(
-    debounce(async query => {
-      if (!query) {
-        setSuggestions([]);
-        setLoading(false);
-        return;
-      }
+  const didMountRef = useRef(false);
+
+  // Sync internal state to parent
+  useEffect(() => {
+    if (searchTerm !== value) {
+      onChangeText(searchTerm);
+    }
+  }, [searchTerm]);
+
+  // Debounced suggestion fetching
+  useEffect(() => {
+    // Avoid firing on first render
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+
+    if (searchTerm.trim().length < minLength) {
+      setSuggestions([]);
+      return;
+    }
+
+    const handler = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${endpoint}?query=${encodeURIComponent(query)}`);
+        const res = await fetch(
+          `${endpoint}?query=${encodeURIComponent(searchTerm)}`
+        );
         if (!res.ok) throw new Error('Network response not ok');
         const data = await res.json();
         setSuggestions(data);
@@ -41,27 +66,37 @@ export default function LocationAutocomplete({
       } finally {
         setLoading(false);
       }
-    }, debounceTime),
-    [endpoint, debounceTime]
-  );
+    }, debounceTime);
 
-  // 2. Wrap the parent callback so we can fetch at the same time
-  const handleChangeText = txt => {
-    onChangeText(txt);
-    fetchSuggestions(txt);
-  };
+    return () => clearTimeout(handler);
+  }, [searchTerm, endpoint, debounceTime, minLength]);
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        value={value}
-        placeholder={placeholder}
-        placeholderTextColor="#b67340"
-        onChangeText={handleChangeText}
-      />
-
-      {loading && <ActivityIndicator size="small" style={styles.loader} />}
+    <View style={styles.fieldContainer}>
+      <Text style={styles.fieldLabel}>{placeholder}</Text>
+      <View style={styles.inputWithIcon}>
+        <Ionicons
+          name="location-outline"
+          size={20}
+          color={colors.subtext}
+          style={styles.icon}
+        />
+        <TextInput
+          style={styles.input}
+          value={searchTerm}
+          placeholder=""
+          placeholderTextColor={colors.subtext}
+          onChangeText={setSearchTerm}
+          onBlur={Keyboard.dismiss}
+        />
+        {loading && (
+          <ActivityIndicator
+            size="small"
+            color={colors.primary}
+            style={styles.loader}
+          />
+        )}
+      </View>
 
       {suggestions.length > 0 && (
         <View style={styles.listInFlow}>
@@ -71,10 +106,13 @@ export default function LocationAutocomplete({
               style={styles.item}
               onPress={() => {
                 onSelect(item);
-                setSuggestions([]);  // clear list on selection
+                setSearchTerm(item.description);
+                setSuggestions([]);
               }}
             >
-              <Text style={styles.itemText}>{item.description}</Text>
+              <Text style={[styles.itemText, { color: colors.text }]}>
+                {item.description}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -83,48 +121,75 @@ export default function LocationAutocomplete({
   );
 }
 
-const styles = StyleSheet.create({
-  container: { width: '100%' },
-
-  input: {
-    backgroundColor: "white",
-    color: Colours[950],
-    borderRadius: 20,
-    height: 44,
-    paddingHorizontal: 12,
-    marginTop: 10,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: Colours[100],
-    fontFamily: "Poppins_400Regular",
-  },
-
-  loader: { position: 'absolute', right: 12, top: 12 },
-
-  listInFlow: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: Colours[100],
-    marginTop: 4,
-    marginBottom: 12,
-    zIndex: 10,
-    overflow: 'hidden',
-    ...Platform.select({ android: { elevation: 4 } }),
-  },
-
-  item: {
-    backgroundColor: "white",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colours[100],
-  },
-
-  itemText: {
-    fontSize: 16,
-    color: Colours[950],
-    fontFamily: "Poppins_400Regular",
-  },
-});
-
+const createStyles = colors =>
+  StyleSheet.create({
+    fieldContainer: {
+      marginBottom: 16,
+      width: '100%',
+    },
+    fieldLabel: {
+      fontSize: 14,
+      lineHeight: 20,
+      color: colors.text,
+      marginBottom: 4,
+      fontFamily: 'Poppins_400Regular',
+    },
+    inputWithIcon: {
+      position: 'relative',
+    },
+    icon: {
+      position: 'absolute',
+      top: 15,
+      left: 12,
+      zIndex: 1,
+    },
+    input: {
+      height: 50,
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: 40,
+      fontSize: 16,
+      fontFamily: 'Poppins_400Regular',
+      elevation: 2,
+      shadowColor: '#000',
+      shadowOpacity: 0.05,
+      shadowOffset: { width: 0, height: 2 },
+      shadowRadius: 4,
+      color: colors.text,
+    },
+    loader: {
+      position: 'absolute',
+      right: 12,
+      top: 15,
+    },
+    listInFlow: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginTop: 4,
+      marginBottom: 12,
+      overflow: 'hidden',
+      ...Platform.select({
+        android: { elevation: 4 },
+        ios: {
+          shadowColor: '#000',
+          shadowOpacity: 0.05,
+          shadowOffset: { width: 0, height: 2 },
+          shadowRadius: 4,
+        },
+      }),
+    },
+    item: {
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    itemText: {
+      fontSize: 16,
+      fontFamily: 'Poppins_400Regular',
+    },
+  });

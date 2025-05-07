@@ -51,7 +51,7 @@ def handle_chat(message: str, conversation_id: str = None) -> dict:
     )
 
     resp = client.chat.completions.create(
-        model="gpt-4-turbo",
+        model="gpt-3.5-turbo",
         max_tokens=1000,
         temperature=0.7,
         messages=[

@@ -1,27 +1,39 @@
-import { StyleSheet } from "react-native";
-import { Colours } from "../../../constants/Colours";
+import { StyleSheet, Platform } from "react-native";
 
-export default StyleSheet.create({
-  card: {
-    backgroundColor: Colours[200],
-    borderRadius: 8,
-    padding: 16,
-    marginVertical: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-  },
-  headerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontFamily: "Poppins_600SemiBold",
-    color: Colours[900],
-  },
-});
+export default function createStyles(colors) {
+  return StyleSheet.create({
+    /** Card container **/
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: 8,
+      padding: 16,
+      marginVertical: 8,
+      ...Platform.select({
+        ios: {
+          shadowColor: "#000",
+          shadowOpacity: 0.1,
+          shadowOffset: { width: 0, height: 2 },
+          shadowRadius: 6,
+        },
+        android: {
+          elevation: 3,
+        },
+      }),
+    },
+
+    /** Header row (title + chevron) **/
+    headerRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 12,
+    },
+
+    /** Card title **/
+    cardTitle: {
+      flex: 1,
+      fontSize: 18,
+      fontFamily: "Poppins_700Bold",
+      color: colors.text,
+    },
+  });
+}
